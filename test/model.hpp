@@ -30,7 +30,7 @@ namespace test
     using lazy_value = std::function<value(bustache::ast::view const*)>;
     using lazy_format = std::function<bustache::format(bustache::ast::view const*)>;
 
-    struct value : std::variant<bool, int, double, std::string, object, array, lazy_value, lazy_format>
+    struct value : std::variant<std::nullptr_t, bool, int, double, std::string, object, array, lazy_value, lazy_format>
     {
         using variant::variant;
 
@@ -51,7 +51,13 @@ struct bustache::impl_compatible<test::value>
 {
     static value_ptr get_value_ptr(test::value::variant const& self)
     {
-        return std::visit([](auto const& val) { return value_ptr(&val); }, self);
+        return std::visit([](auto const& val) -> value_ptr
+        {
+            if constexpr (std::is_same_v<std::decay_t<decltype(val)>, std::nullptr_t>)
+                return nullptr;
+            else
+                return value_ptr(&val);
+        }, self);
     }
 };
 
