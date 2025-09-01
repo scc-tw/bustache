@@ -57,17 +57,23 @@ TEST_CASE("interpolation")
     // Ampersand Decimal Interpolation
     CHECK(to_string(R"("{{&power}} jiggawatts!")"_fmt(object{{"power", 1.21}})) == R"("1.21 jiggawatts!")");
 
-    // Context Misses
-    {
-        // Basic Context Miss Interpolation
-        CHECK(to_string("I ({{cannot}}) be seen!"_fmt(empty)) == "I () be seen!");
+      // Context Misses
+      {
+          // Basic Context Miss Interpolation
+          CHECK(to_string("I ({{cannot}}) be seen!"_fmt(empty)) == "I () be seen!");
 
         // Triple Mustache Context Miss Interpolation
         CHECK(to_string("I ({{{cannot}}}) be seen!"_fmt(empty)) == "I () be seen!");
 
-        // Ampersand Context Miss Interpolation
-        CHECK(to_string("I ({{&cannot}}) be seen!"_fmt(empty)) == "I () be seen!");
-    }
+          // Ampersand Context Miss Interpolation
+          CHECK(to_string("I ({{&cannot}}) be seen!"_fmt(empty)) == "I () be seen!");
+      }
+
+      // Null Interpolation
+      {
+          object const data{{"nothing", nullptr}};
+          CHECK(to_string("I ({{nothing}}) be seen!"_fmt(data)) == "I () be seen!");
+      }
 
     // Dotted Names
     {
@@ -102,9 +108,15 @@ TEST_CASE("interpolation")
                 {"c", object{{"c", object{{"d", object{{"e", object{{"name", "Wrong"}}}}}}}}}
             })) == R"("Phil" == "Phil")");
 
-        // Dotted Names - Context Precedence
-        CHECK(to_string("{{#a}}{{b.c}}{{/a}}"_fmt(object{{"b", empty}, {"c", "ERROR"}})) == "");
-    }
+          // Dotted Names - Context Precedence
+          CHECK(to_string("{{#a}}{{b.c}}{{/a}}"_fmt(object{{"b", empty}, {"c", "ERROR"}})) == "");
+
+          // Dotted Names are never single keys
+          CHECK(to_string("{{a.b}}"_fmt(object{{"a.b", "c"}})) == "");
+
+          // Dotted Names - No Masking
+          CHECK(to_string("{{a.b}}"_fmt(object{{"a.b", "c"}, {"a", object{{"b", "d"}}}})) == "d");
+      }
 
     object s{{"string", "---"}};
 
@@ -150,13 +162,16 @@ TEST_CASE("sections")
     CHECK(to_string(R"("{{#boolean}}This should be rendered.{{/boolean}}")"_fmt(object{{"boolean", true}}))
         == R"("This should be rendered.")");
 
-    // Falsey
-    CHECK(to_string(R"("{{#boolean}}This should not be rendered.{{/boolean}}")"_fmt(object{{"boolean", false}}))
-        == R"("")");
+      // Falsey
+      CHECK(to_string(R"("{{#boolean}}This should not be rendered.{{/boolean}}")"_fmt(object{{"boolean", false}}))
+          == R"("")");
 
-    // Context
-    CHECK(to_string(R"("{{#context}}Hi {{name}}.{{/context}}")"_fmt(object{{"context", object{{"name", "Joe"}}}}))
-        == R"("Hi Joe.")");
+      // Null
+      CHECK(to_string("{{#null}}This should not be rendered.{{/null}}"_fmt(object{{"null", nullptr}})) == "");
+
+      // Context
+      CHECK(to_string(R"("{{#context}}Hi {{name}}.{{/context}}")"_fmt(object{{"context", object{{"name", "Joe"}}}}))
+          == R"("Hi Joe.")");
 
     // Deeply Nested Contexts
     CHECK(to_string(
