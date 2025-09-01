@@ -475,11 +475,15 @@ namespace bustache::detail
                 return;
             auto const old_size = indent.size();
             auto const old_chain = chain.size();
+            auto const old_scope = scope;
+            auto const old_cursor = cursor;
             indent += partial->indent;
             needs_indent |= !partial->indent.empty();
             if (!partial->overriders.empty())
                 chain.push_back({&partial->overriders, ctx});
             visit_within(doc);
+            scope = old_scope;
+            cursor = old_cursor;
             chain.resize(old_chain);
             indent.resize(old_size);
         }
