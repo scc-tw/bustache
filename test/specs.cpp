@@ -24,6 +24,9 @@ TEST_CASE("interpolation")
     // Basic Interpolation
     CHECK(to_string("Hello, {{subject}}!"_fmt(object{{"subject", "world"}})) == "Hello, world!");
 
+    // No Re-interpolation
+    CHECK(to_string("{{template}}: {{planet}}"_fmt(object{{"template", "{{planet}}"}, {"planet", "Earth"}})) == "{{planet}}: Earth");
+
     // HTML Escaping
     CHECK(to_string("These characters should be HTML escaped: {{forbidden}}"_fmt(object{{"forbidden", "& \" < >"}}).escape(escape_html))
         == "These characters should be HTML escaped: &amp; &quot; &lt; &gt;");
