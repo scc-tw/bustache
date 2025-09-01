@@ -20,6 +20,7 @@ This project currently targets Mustache specification v1.4.3. The following road
 - **Dynamic Partials**: resolve partial names from the context (e.g. `{{> (*name)}}`).
 - Regression test for comment content colliding with variables.
 
+
 ## v1.4.0
 - Unescaped implicit iteration (`{{#list}}{{.}}{{/list}}` respects `{{{.}}}` and `{{&.}}`).
 - Context root may be iterated over directly.
@@ -41,3 +42,4 @@ This project currently targets Mustache specification v1.4.3. The following road
 - Core rendering engine already supports inheritance, dynamic partials and nested partials.
 - Unit tests now cover interpolated content reuse, `null` value handling and dotted-name edge cases.
 - Whitespace normalisation remains to be audited.
+
