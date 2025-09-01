@@ -102,7 +102,8 @@ namespace bustache::detail
         fn_base(F const& f) noexcept : _data(&f), _call(call<F>) {}
 
         template<class F>
-        fn_base(F* f) noexcept : _data(f), _call(call_fp<F>) {}
+        // Store function pointers as opaque data for later invocation
+        fn_base(F* f) noexcept : _data(reinterpret_cast<void const*>(f)), _call(call_fp<F>) {}
 
         R operator()(T... t) const
         {
@@ -118,7 +119,7 @@ namespace bustache::detail
         template<class F>
         static R call_fp(void const* f, T&&... t)
         {
-            return static_cast<F*>(f)(std::forward<T>(t)...);
+            return reinterpret_cast<F*>(f)(std::forward<T>(t)...);
         }
 
         void const* _data;
