@@ -3,18 +3,18 @@
 This project currently targets Mustache specification v1.4.3. The following roadmap documents the changes introduced after the older v1.1.3 baseline and notes their implementation status.
 
 ## v1.2.0
-- Introduced optional **Inheritance** module (`{{< parent}}` / `{{/parent}}`).
-- Added optional lambda tests for Raku.
-- Expanded tests for context stack behaviour.
-- Project relicensed under MIT.
+- [x] Introduced optional **Inheritance** module (`{{< parent}}` / `{{/parent}}`).
+- [x] Added optional lambda tests for Raku.
+- [x] Expanded tests for context stack behaviour.
+- [x] Project relicensed under MIT.
 
 ## v1.2.1
-- Specified how to interpolate `null` values.
-- Clarified interpolation of implicit iterators (`{{.}}`).
+- [x] Specified how to interpolate `null` values.
+- [x] Clarified interpolation of implicit iterators (`{{.}}`).
 
 ## v1.2.2
-- Added PowerShell lambda fixtures.
-- Defined scope resolution for substituted blocks in inheritance.
+- [x] Added PowerShell lambda fixtures.
+- [x] Defined scope resolution for substituted blocks in inheritance.
 
 ## v1.3.0
 - **Dynamic Partials**: resolve partial names from the context (e.g. `{{> (*name)}}`).
@@ -41,5 +41,6 @@ This project currently targets Mustache specification v1.4.3. The following road
 ## Implementation Notes
 - Core rendering engine already supports inheritance, dynamic partials and nested partials.
 - Unit tests now cover interpolated content reuse, `null` value handling, dotted-name edge cases and block scope in inheritance.
+- Addition of PowerShell lambda fixtures requires no changes; existing lambda tests remain valid.
 - Whitespace normalisation remains to be audited.
 
