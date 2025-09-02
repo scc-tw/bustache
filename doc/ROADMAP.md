@@ -17,8 +17,8 @@ This project currently targets Mustache specification v1.4.3. The following road
 - [x] Defined scope resolution for substituted blocks in inheritance.
 
 ## v1.3.0
-- **Dynamic Partials**: resolve partial names from the context (e.g. `{{> (*name)}}`).
-- Regression test for comment content colliding with variables.
+- [x] **Dynamic Partials**: resolve partial names from the context (e.g. `{{> (*name)}}`).
+- [x] Regression test for comment content colliding with variables.
 
 
 ## v1.4.0

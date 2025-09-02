@@ -316,12 +316,23 @@ namespace bustache::parser { namespace
 
     void expect_comment(I b, I& i, I e, delim& d)
     {
-        while (!parse_lit(i, e, d.close))
+        while (i != e)
         {
-            if (i == e)
-                throw format_error(error_delim, i - b);
-            ++i;
+            if (parse_lit(i, e, d.close))
+                return;
+            if (parse_lit(i, e, d.open))
+            {
+                while (!parse_lit(i, e, d.close))
+                {
+                    if (i == e)
+                        throw format_error(error_delim, i - b);
+                    ++i;
+                }
+            }
+            else
+                ++i;
         }
+        throw format_error(error_delim, i - b);
     }
 
     void expect_set_delim(I b, I& i, I e, delim& d)

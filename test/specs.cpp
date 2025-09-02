@@ -606,6 +606,9 @@ TEST_CASE("comments")
 
     // Surrounding Whitespace
     CHECK(to_string("12345 {{! Comment Block! }} 67890"_fmt(empty)) == "12345  67890");
+
+    // Comment Content Colliding with Variables
+    CHECK(to_string("{{! {{foo}} }}{{foo}}"_fmt(object{{"foo", "bar"}})) == "bar");
 }
 
 TEST_CASE("partials")
