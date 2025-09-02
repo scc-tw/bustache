@@ -250,7 +250,16 @@ TEST_CASE("sections")
 
         // Implicit Iterator - Array
         CHECK(to_string(R"#("{{#list}}({{#.}}{{.}}{{/.}}){{/list}}")#"_fmt(object{{"list", array{array{1, 2, 3}, array{"a", "b", "c"}}}})) == R"#("(123)(abc)")#");
+
+        // Implicit Iterator - Unescaped
+        CHECK(to_string(R"#("{{#list}}({{{.}}}){{/list}}")#"_fmt(object{{"list", array{"<1>", "<2>"}}}).escape(escape_html)) == R"#("(<1>)(<2>)")#");
+
+        // Implicit Iterator - Ampersand
+        CHECK(to_string(R"#("{{#list}}({{&.}}){{/list}}")#"_fmt(object{{"list", array{"<1>", "<2>"}}}).escape(escape_html)) == R"#("(<1>)(<2>)")#");
     }
+
+    // Context root iteration
+    CHECK(to_string(R"#("{{#.}}({{.}}){{/.}}")#"_fmt(array{1, 2, 3})) == R"#("(1)(2)(3)")#");
 
     // Dotted Names
     {

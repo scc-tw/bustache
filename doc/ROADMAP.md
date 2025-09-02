@@ -22,8 +22,8 @@ This project currently targets Mustache specification v1.4.3. The following road
 
 
 ## v1.4.0
-- Unescaped implicit iteration (`{{#list}}{{.}}{{/list}}` respects `{{{.}}}` and `{{&.}}`).
-- Context root may be iterated over directly.
+- [x] Unescaped implicit iteration (`{{#list}}{{.}}{{/list}}` respects `{{{.}}}` and `{{&.}}`).
+- [x] Context root may be iterated over directly.
 - Additional inheritance specs covering block reindentation.
 - Added Go lambda fixtures and permitted `TaggedMap` for Ruby.
 
@@ -40,7 +40,7 @@ This project currently targets Mustache specification v1.4.3. The following road
 
 ## Implementation Notes
 - Core rendering engine already supports inheritance, dynamic partials and nested partials.
-- Unit tests now cover interpolated content reuse, `null` value handling, dotted-name edge cases and block scope in inheritance.
+- Unit tests now cover interpolated content reuse, `null` value handling, dotted-name edge cases, block scope in inheritance, and implicit iteration over arrays and the context root.
 - Addition of PowerShell lambda fixtures requires no changes; existing lambda tests remain valid.
 - Whitespace normalisation remains to be audited.
 
