@@ -40,6 +40,6 @@ This project currently targets Mustache specification v1.4.3. The following road
 
 ## Implementation Notes
 - Core rendering engine already supports inheritance, dynamic partials and nested partials.
-- Unit tests now cover interpolated content reuse, `null` value handling and dotted-name edge cases.
+- Unit tests now cover interpolated content reuse, `null` value handling, dotted-name edge cases and block scope in inheritance.
 - Whitespace normalisation remains to be audited.
 

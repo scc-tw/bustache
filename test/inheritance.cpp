@@ -93,6 +93,15 @@ TEST_CASE("inheritance")
             {"grandParent", "{{$a}}g{{/a}}"_fmt}
             })) == "p");
 
+    // Block scope
+    CHECK(to_string("{{<parent}}{{$block}}I say {{fruit}}.{{/block}}{{/parent}}"_fmt(
+            object{
+                {"fruit", "apples"},
+                {"nested", object{{"fruit", "bananas"}}}
+            }
+        ).context(context{{"parent", "{{#nested}}{{$block}}You say {{fruit}}.{{/block}}{{/nested}}"_fmt}}))
+        == "I say bananas.");
+
     // Text inside super
     CHECK(to_string("{{<include}} asdfasd {{$foo}}hmm{{/foo}} asdfasdfasdf {{/include}}"_fmt(nullptr)
         .context(context{{"include", "{{$foo}}default content{{/foo}}"_fmt}})) == "hmm");
