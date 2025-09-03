@@ -1,4 +1,9 @@
-find_package(Catch2 REQUIRED)
+find_package(Catch2 QUIET)
+
+if(NOT Catch2_FOUND)
+    message(STATUS "Catch2 not found, fetching from GitHub...")
+    include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/FetchCatch2.cmake)
+endif()
 
 function(add_catch_test name)
     set(TEST_TARGET test_${name})
@@ -19,3 +24,6 @@ add_catch_test(inheritance)
 add_catch_test(split_tag)
 add_catch_test(dynamic_names)
 add_catch_test(context_stack)
+add_catch_test(boundary_tests)
+add_catch_test(error_path_tests)
+add_catch_test(failure_simulation_tests)
