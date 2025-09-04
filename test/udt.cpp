@@ -6,6 +6,7 @@
 //////////////////////////////////////////////////////////////////////////////*/
 #include <catch2/catch_test_macros.hpp>
 #include <bustache/render/string.hpp>
+#include <span>
 
 struct Inner
 {
@@ -127,7 +128,7 @@ struct bustache::impl_print<Range>
             impl_print<int>::print(i, os, nullptr);
             while (++i != self.b)
             {
-                os(",", 1);
+                os(std::span<const char>(",", 1));
                 impl_print<int>::print(i, os, nullptr);
             }
         }

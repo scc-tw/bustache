@@ -14,6 +14,7 @@
 #include <concepts>
 #include <functional>
 #include <variant>
+#include <span>
 #ifdef BUSTACHE_USE_FMT
 #include <fmt/format.h>
 #elif defined(__cpp_lib_format)
@@ -227,7 +228,7 @@ namespace bustache
         explicit operator bool() const { return !!this->_data; }
     };
 
-    using output_handler = fn_ref<void(char const*, std::size_t)>;
+    using output_handler = fn_ref<void(std::span<const char>)>;
 
     struct value_ptr
     {
@@ -315,7 +316,7 @@ namespace bustache::detail
             buf[count++] = c;
         }
 
-        void flush() { os(buf, count); }
+        void flush() { os(std::span<const char>(buf, count)); }
 
         std::size_t count = 0;
         char buf[1024];

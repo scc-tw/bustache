@@ -7,6 +7,7 @@
 
 #include <bustache/render.hpp>
 #include <cassert>
+#include <span>
 
 namespace bustache::detail
 {
@@ -242,9 +243,9 @@ namespace bustache::detail
                 resolve_and_handle(s, nullptr, [this](value_ptr val)
                 {
                     key_cache.clear();
-                    auto const os = [this](char const* data, std::size_t bytes)
+                    auto const os = [this](std::span<const char> data)
                     {
-                        key_cache.append(data, bytes);
+                        key_cache.append(data.data(), data.size());
                     };
                     print_value(os, val, nullptr, false);
                 });
@@ -337,7 +338,7 @@ namespace bustache::detail
     {
         if (needs_indent)
         {
-            raw_os(indent.data(), indent.size());
+            raw_os(std::span<const char>(indent.data(), indent.size()));
             needs_indent = false;
         }
         print_value(tag == ast::type::var_raw ? raw_os : escape_os, val, sepc, true);
@@ -450,26 +451,26 @@ namespace bustache::detail
         assert(n && "empty text shouldn't be in ast");
         if (indent.empty())
         {
-            raw_os(i, n);
+            raw_os(std::span<const char>(i, n));
             return;
         }
         auto const ib = indent.data();
         auto const in = indent.size();
         if (needs_indent)
-            raw_os(ib, in);
+            raw_os(std::span<const char>(ib, in));
         auto i0 = i;
         auto const e = i + (n - 1); // Don't flush indent on last newline.
         while (i != e)
         {
             if (*i++ == '\n')
             {
-                raw_os(i0, i - i0);
-                raw_os(ib, in);
+                raw_os(std::span<const char>(i0, i - i0));
+                raw_os(std::span<const char>(ib, in));
                 i0 = i;
             }
         }
         needs_indent = *i++ == '\n';
-        raw_os(i0, i - i0);
+        raw_os(std::span<const char>(i0, i - i0));
     }
 
     void content_visitor::operator()(ast::type, ast::partial const* partial)
@@ -512,7 +513,7 @@ namespace bustache
         if (spec)
             detail::print_fmt(self, os, spec);
         else
-            os(self.data(), self.size());
+            os(std::span<const char>(self.data(), self.size()));
     }
 
     void impl_print<bool>::print(bool self, output_handler os, char const* spec)
@@ -520,6 +521,6 @@ namespace bustache
         if (spec)
             detail::print_fmt(self, os, spec);
         else
-            self ? os("true", 4) : os("false", 5);
+            self ? os(std::span<const char>("true", 4)) : os(std::span<const char>("false", 5));
     }
 }

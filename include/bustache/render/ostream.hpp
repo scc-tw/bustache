@@ -8,6 +8,7 @@
 #define BUSTACHE_RENDER_OSTREAM_HPP_INCLUDED
 
 #include <iostream>
+#include <span>
 #include <bustache/render.hpp>
 
 namespace bustache::detail
@@ -17,9 +18,9 @@ namespace bustache::detail
     {
         std::basic_ostream<CharT, Traits>& out;
 
-        void operator()(char const* data, std::size_t bytes) const
+        void operator()(std::span<const char> data) const
         {
-            out.write(data, bytes);
+            out.write(data.data(), data.size());
         }
     };
 }

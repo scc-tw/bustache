@@ -7,6 +7,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
 #include <bustache/render/string.hpp>
+#include <span>
 #include "model.hpp"
 
 using namespace bustache;
@@ -51,7 +52,7 @@ TEST_CASE("unresolved")
 TEST_CASE("nested")
 {
     format const fmt("{{a.b}}");
-    constexpr auto void_sink = [](char const*, std::size_t) {};
+    constexpr auto void_sink = [](std::span<const char>) {};
 
     CHECK_THROWS_WITH
     (

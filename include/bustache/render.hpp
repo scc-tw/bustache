@@ -9,6 +9,7 @@
 
 #include <bustache/model.hpp>
 #include <optional>
+#include <span>
 
 namespace bustache
 {
@@ -97,23 +98,23 @@ namespace bustache::detail
     {
         Sink const& sink;
 
-        void operator()(const void* data, std::size_t bytes) const
+        void operator()(std::span<const char> data) const
         {
-            auto it = static_cast<char const*>(data);
+            auto it = data.data();
             auto last = it;
-            auto const end = it + bytes;
+            auto const end = it + data.size();
             while (it != end)
             {
                 if (auto const str = get_escaped(*it))
                 {
-                    sink(last, it - last);
-                    sink(str.data, str.size);
+                    sink(std::span<const char>(last, it - last));
+                    sink(std::span<const char>(str.data, str.size));
                     last = ++it;
                 }
                 else
                     ++it;
             }
-            sink(last, it - last);
+            sink(std::span<const char>(last, it - last));
         }
     };
 

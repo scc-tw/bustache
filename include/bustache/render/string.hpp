@@ -8,6 +8,7 @@
 #define BUSTACHE_RENDER_STRING_HPP_INCLUDED
 
 #include <string>
+#include <span>
 #include <bustache/render.hpp>
 
 namespace bustache::detail
@@ -17,9 +18,9 @@ namespace bustache::detail
     {
         String& out;
 
-        void operator()(char const* data, std::size_t bytes) const
+        void operator()(std::span<const char> data) const
         {
-            out.insert(out.end(), data, data + bytes);
+            out.insert(out.end(), data.begin(), data.end());
         }
     };
 }

@@ -7,6 +7,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <bustache/render/string.hpp>
 #include <bustache/format.hpp>
+#include <span>
 #include "model.hpp"
 
 using namespace bustache;
@@ -105,15 +106,14 @@ TEST_CASE("custom_extensions_escape_handlers", "[extensions]")
         
         // Define a custom URL escape handler
         auto url_escape = [](auto const& sink) {
-            return [&sink](char const* data, std::size_t size) {
-                for (std::size_t i = 0; i < size; ++i) {
-                    char c = data[i];
+            return [&sink](std::span<const char> data) {
+                for (char c : data) {
                     if (c == ' ') {
-                        sink("%20", 3);
+                        sink(std::span<const char>("%20", 3));
                     } else if (c == '&') {
-                        sink("%26", 3);
+                        sink(std::span<const char>("%26", 3));
                     } else {
-                        sink(&c, 1);
+                        sink(std::span<const char>(&c, 1));
                     }
                 }
             };
