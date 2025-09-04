@@ -67,8 +67,8 @@ TEST_CASE("failure_simulation_circular_partials", "[failure]")
         
         object data{{"value", "test"}};
         
-        auto context = [&partials](std::string const& name) -> std::optional<std::reference_wrapper<format const>> {
-            auto it = partials.find(name);
+        auto context = [&partials](std::string_view name) -> std::optional<std::reference_wrapper<format const>> {
+            auto it = partials.find(std::string(name));
             return it != partials.end() ? std::optional{std::ref(it->second)} : std::nullopt;
         };
         
@@ -90,8 +90,8 @@ TEST_CASE("failure_simulation_circular_partials", "[failure]")
         
         object data;
         
-        auto context = [&partials](std::string const& name) -> std::optional<std::reference_wrapper<format const>> {
-            auto it = partials.find(name);
+        auto context = [&partials](std::string_view name) -> std::optional<std::reference_wrapper<format const>> {
+            auto it = partials.find(std::string(name));
             return it != partials.end() ? std::optional{std::ref(it->second)} : std::nullopt;
         };
         
@@ -116,8 +116,8 @@ TEST_CASE("failure_simulation_circular_partials", "[failure]")
         
         object data;
         
-        auto context = [&partials](std::string const& name) -> std::optional<std::reference_wrapper<format const>> {
-            auto it = partials.find(name);
+        auto context = [&partials](std::string_view name) -> std::optional<std::reference_wrapper<format const>> {
+            auto it = partials.find(std::string(name));
             return it != partials.end() ? std::optional{std::ref(it->second)} : std::nullopt;
         };
         
@@ -247,7 +247,7 @@ TEST_CASE("failure_simulation_context_timeout", "[failure]")
         // We document this as a known limitation
         
         // Create a slow context lookup (simulated)
-        auto slow_context = [](std::string const& name) -> std::optional<std::reference_wrapper<format const>> {
+        auto slow_context = [](std::string_view name) -> std::optional<std::reference_wrapper<format const>> {
             // In a real scenario, this might be a slow network call
             // or database lookup. The library doesn't support timeouts.
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -338,8 +338,8 @@ TEST_CASE("failure_simulation_memory_leak_detection", "[failure]")
             (*partials)["header"] = format("Header: {{title}}");
             (*partials)["footer"] = format("Footer: {{year}}");
             
-            auto context = [partials](std::string const& name) -> std::optional<std::reference_wrapper<format const>> {
-                auto it = partials->find(name);
+            auto context = [partials](std::string_view name) -> std::optional<std::reference_wrapper<format const>> {
+                auto it = partials->find(std::string(name));
                 return it != partials->end() ? std::optional{std::ref(it->second)} : std::nullopt;
             };
             
@@ -398,7 +398,7 @@ TEST_CASE("failure_simulation_partial_loading", "[failure]")
         object data;
         
         // Context that returns nullptr for missing partials
-        auto context = [](std::string const&) -> std::optional<std::reference_wrapper<format const>> {
+        auto context = [](std::string_view) -> std::optional<std::reference_wrapper<format const>> {
             return std::nullopt;
         };
         
@@ -415,7 +415,7 @@ TEST_CASE("failure_simulation_partial_loading", "[failure]")
         
         object data;
         
-        auto context = [&partials](std::string const& name) -> std::optional<std::reference_wrapper<format const>> {
+        auto context = [&partials](std::string_view name) -> std::optional<std::reference_wrapper<format const>> {
             if (name == "bad") {
                 // Simulate partial loading that fails
                 // The format constructor throws on malformed templates
@@ -427,7 +427,7 @@ TEST_CASE("failure_simulation_partial_loading", "[failure]")
                     return std::nullopt;
                 }
             }
-            auto it = partials.find(name);
+            auto it = partials.find(std::string(name));
             return it != partials.end() ? std::optional{std::ref(it->second)} : std::nullopt;
         };
         

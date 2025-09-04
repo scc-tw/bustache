@@ -268,8 +268,8 @@ TEST_CASE("performance_partial_loading_and_caching", "[performance]")
             partials[partial_name] = format(partial_template, true); // Copy text to avoid use-after-scope
         }
         
-        auto context = [&partials](std::string const& name) -> std::optional<std::reference_wrapper<format const>> {
-            auto it = partials.find(name);
+        auto context = [&partials](std::string_view name) -> std::optional<std::reference_wrapper<format const>> {
+            auto it = partials.find(std::string(name));
             return it != partials.end() ? std::optional{std::ref(it->second)} : std::nullopt;
         };
         
@@ -318,8 +318,8 @@ TEST_CASE("performance_partial_loading_and_caching", "[performance]")
         partials["body"] = format("BODY: {{content}}", true);
         partials["footer"] = format("FOOTER: {{year}}", true);
         
-        auto context = [&partials](std::string const& name) -> std::optional<std::reference_wrapper<format const>> {
-            auto it = partials.find(name);
+        auto context = [&partials](std::string_view name) -> std::optional<std::reference_wrapper<format const>> {
+            auto it = partials.find(std::string(name));
             return it != partials.end() ? std::optional{std::ref(it->second)} : std::nullopt;
         };
         

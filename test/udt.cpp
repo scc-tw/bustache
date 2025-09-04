@@ -40,7 +40,7 @@ struct bustache::impl_model<Inner>
 template<>
 struct bustache::impl_object<Inner>
 {
-    static void get(Inner const& self, std::string const& key, value_handler visit)
+    static void get(Inner const& self, std::string_view key, value_handler visit)
     {
         if (key == "i32")
             return visit(&self.i32);
@@ -59,7 +59,7 @@ struct bustache::impl_model<Phantom>
 template<>
 struct bustache::impl_object<Phantom>
 {
-    static void get(Phantom const&, std::string const& key, value_handler visit)
+    static void get(Phantom const&, std::string_view key, value_handler visit)
     {
         if (key == "age")
         {
@@ -84,7 +84,7 @@ struct bustache::impl_model<Outer>
 template<>
 struct bustache::impl_object<Outer>
 {
-    static void get(Outer const& self, std::string const& key, value_handler visit)
+    static void get(Outer const& self, std::string_view key, value_handler visit)
     {
         if (key == "inner")
             return visit(&self.inner);

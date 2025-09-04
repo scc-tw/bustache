@@ -10,16 +10,17 @@
 #include <bustache/model.hpp>
 #include <optional>
 #include <span>
+#include <string_view>
 
 namespace bustache
 {
-    using unresolved_handler = fn_ptr<value_ptr(std::string const&)>;
+    using unresolved_handler = fn_ptr<value_ptr(std::string_view)>;
 
-    using context_handler = fn_ref<std::optional<std::reference_wrapper<format const>>(std::string const&)>;
+    using context_handler = fn_ref<std::optional<std::reference_wrapper<format const>>(std::string_view)>;
 
     struct no_context_t
     {
-        std::optional<std::reference_wrapper<format const>> operator()(std::string const&) const
+        std::optional<std::reference_wrapper<format const>> operator()(std::string_view) const
         {
             return std::nullopt;
         }
@@ -34,7 +35,7 @@ namespace bustache
 
         constexpr map_context(Map const& map) noexcept : map(map) {}
 
-        std::optional<std::reference_wrapper<format const>> operator()(std::string const& key) const
+        std::optional<std::reference_wrapper<format const>> operator()(std::string_view key) const
         {
             auto it = map.find(key);
             return it == map.end() ? std::nullopt : std::optional{std::ref(it->second)};

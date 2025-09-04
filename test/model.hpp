@@ -11,9 +11,9 @@ namespace test
     {
         using unordered_map::unordered_map;
 
-        std::optional<std::reference_wrapper<bustache::format const>> operator()(std::string const& key) const
+        std::optional<std::reference_wrapper<bustache::format const>> operator()(std::string_view key) const
         {
-            auto it = find(key);
+            auto it = find(std::string(key));
             return it == end() ? std::nullopt : std::optional{std::ref(it->second)};
         }
     };
@@ -25,7 +25,7 @@ namespace test
         using vector::vector;
         using mapped_type = value;
 
-        const_iterator find(std::string const& key) const;
+        const_iterator find(std::string_view key) const;
     };
 
     using array = std::vector<value>;
@@ -39,7 +39,7 @@ namespace test
         value(char const* str) : variant(std::string(str)) {}
     };
 
-    object::const_iterator object::find(std::string const& key) const
+    object::const_iterator object::find(std::string_view key) const
     {
         return std::find_if(begin(), end(), [&key](value_type const& pair)
         {

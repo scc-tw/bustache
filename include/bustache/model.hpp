@@ -180,7 +180,7 @@ namespace bustache
     concept ValueRange = Value<detail::ranges::range_value_t<T>>;
 
     template<class T>
-    concept StrValueMap = requires(T const& t, std::string const& key)
+    concept StrValueMap = requires(T const& t, std::string_view key)
     {
         t.find(key) == t.end();
     } && Value<typename T::mapped_type>;
@@ -451,15 +451,15 @@ namespace bustache::detail
         template<class T> requires requires{impl_object<T>{};}
         constexpr object_trait(type<T>) : get(get_impl<T>) {}
 
-        void(*get)(void const* self, std::string const& key, value_handler visit);
+        void(*get)(void const* self, std::string_view key, value_handler visit);
 
-        static void get_default(void const*, std::string const&, value_handler visit)
+        static void get_default(void const*, std::string_view, value_handler visit)
         {
             visit(nullptr);
         }
 
         template<class T>
-        static void get_impl(void const* self, std::string const& key, value_handler visit)
+        static void get_impl(void const* self, std::string_view key, value_handler visit)
         {
             return impl_object<T>::get(deref_data<T>(self), key, visit);
         }
@@ -634,7 +634,7 @@ namespace bustache
     template<StrValueMap T>
     struct impl_object<T>
     {
-        static void get(T const& self, std::string const& key, value_handler visit)
+        static void get(T const& self, std::string_view key, value_handler visit)
         {
             auto const found = self.find(key);
             visit(found == self.end() ? nullptr : &found->second);
@@ -680,7 +680,7 @@ namespace bustache
     template<String K, Value V>
     struct impl_object<std::pair<K, V>>
     {
-        static void get(std::pair<K, V> const& self, std::string const& key, value_handler visit)
+        static void get(std::pair<K, V> const& self, std::string_view key, value_handler visit)
         {
             if (key == "key")
                 return visit(&self.first);

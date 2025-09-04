@@ -51,7 +51,7 @@ namespace bustache
     template<>
     struct bustache::impl_object<boost::json::object>
     {
-        static void get(boost::json::object const& self, std::string const& key, value_handler visit)
+        static void get(boost::json::object const& self, std::string_view key, value_handler visit)
         {
             auto const it = self.find(key);
             visit(it == self.end() ? nullptr : &it->value());

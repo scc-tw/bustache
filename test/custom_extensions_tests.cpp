@@ -145,7 +145,7 @@ TEST_CASE("custom_extensions_unresolved_handlers", "[extensions]")
         object data{{"existing", "value"}};
         
         // Create an unresolved handler that returns a default value
-        auto unresolved = [](std::string const& key) -> value_ptr {
+        auto unresolved = [](std::string_view key) -> value_ptr {
             if (key == "missing") {
                 static std::string default_val = "[MISSING]";
                 return &default_val;
@@ -163,7 +163,7 @@ TEST_CASE("custom_extensions_unresolved_handlers", "[extensions]")
         object data{{"a", object{{"b", "value"}}}};
         
         // Handler for unresolved nested paths
-        auto unresolved = [](std::string const& key) -> value_ptr {
+        auto unresolved = [](std::string_view key) -> value_ptr {
             static std::string empty = "";
             return &empty;
         };
@@ -178,7 +178,7 @@ TEST_CASE("custom_extensions_unresolved_handlers", "[extensions]")
         object data{{"x", 10}};
         
         // Handler that performs calculations for special keys
-        auto unresolved = [&data](std::string const& key) -> value_ptr {
+        auto unresolved = [&data](std::string_view key) -> value_ptr {
             static int computed;
             if (key == "x_squared") {
                 auto x_val = data.find("x");

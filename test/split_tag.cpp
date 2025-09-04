@@ -27,7 +27,7 @@ struct bustache::impl_model<S>
 template<>
 struct bustache::impl_object<S>
 {
-    static void get(S const& self, std::string const& key, value_handler visit)
+    static void get(S const& self, std::string_view key, value_handler visit)
     {
         if (key == "b")
             return visit(&self.b);
@@ -55,7 +55,7 @@ struct bustache::impl_model<Sep>
 template<>
 struct bustache::impl_object<Sep>
 {
-    static void get(Sep self, std::string const& key, value_handler visit)
+    static void get(Sep self, std::string_view key, value_handler visit)
     {
         std::vector<std::string_view> v;
         auto i = key.data();

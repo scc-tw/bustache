@@ -59,19 +59,19 @@ struct file_context
         std::string text;
         bustache::format format;
 
-        void init(std::string const& filename)
+        void init(std::string_view filename)
         {
-            text = read_file(filename.c_str());
+            text = read_file(std::string(filename).c_str());
             format = bustache::format(text);
         }
     };
     mutable std::unordered_map<std::string, partail> cache;
 
-    bustache::format const* operator()(std::string const& key) const
+    bustache::format const* operator()(std::string_view key) const
     {
-        auto [pos, inserted] = cache.try_emplace(key);
+        auto [pos, inserted] = cache.try_emplace(std::string(key));
         if (inserted)
-            pos->second.init(key + ".mustache");
+            pos->second.init(std::string(key) + ".mustache");
         return pos->second.text.empty() ? nullptr : &pos->second.format;
     }
 };

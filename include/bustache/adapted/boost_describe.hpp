@@ -22,19 +22,19 @@ namespace bustache::detail
         boost::describe::describe_bases<T, boost::describe::mod_public>;
 
     template<class T, template<class...> class L, class... D>
-    bool visit_members(L<D...>, T const& self, std::string const& key, value_handler visit)
+    bool visit_members(L<D...>, T const& self, std::string_view key, value_handler visit)
     {
         return (... || (key == D::name && (visit(&(self.*D::pointer)), true)));
     }
 
     template<class T>
-    bool visit_udt(T const& self, std::string const& key, value_handler visit)
+    bool visit_udt(T const& self, std::string_view key, value_handler visit)
     {
         return visit_members(pub_members<T>{}, self, key, visit);
     }
 
     template<class T, template<class...> class L, class... D>
-    bool visit_bases(L<D...>, T const& self, std::string const& key, value_handler visit)
+    bool visit_bases(L<D...>, T const& self, std::string_view key, value_handler visit)
     {
         return (... || visit_udt<typename D::type>(self, key, visit));
     }
@@ -57,7 +57,7 @@ namespace bustache
     template<DescribedUDT T>
     struct bustache::impl_object<T>
     {
-        static void get(T const& self, std::string const& key, value_handler visit)
+        static void get(T const& self, std::string_view key, value_handler visit)
         {
             if (detail::visit_udt(self, key, visit))
                 return;

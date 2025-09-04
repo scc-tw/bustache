@@ -14,7 +14,7 @@ namespace bustache::detail
     struct object_ptr
     {
         void const* data;
-        void(*_get)(void const* self, std::string const& key, value_handler visit);
+        void(*_get)(void const* self, std::string_view key, value_handler visit);
 
         static object_ptr from(value_ptr val)
         {
@@ -34,7 +34,7 @@ namespace bustache::detail
 
         constexpr explicit operator bool() const { return !!data; }
 
-        void get(std::string const& key, value_handler visit) const
+        void get(std::string_view key, value_handler visit) const
         {
             _get(data, key, visit);
         }
@@ -47,7 +47,7 @@ namespace bustache::detail
     };
 
     template<class Visit>
-    void lookup(content_scope const* scope, std::string const& key, Visit const& visit)
+    void lookup(content_scope const* scope, std::string_view key, Visit const& visit)
     {
         bool found = false;
         do
