@@ -577,7 +577,7 @@ namespace bustache
         case error_badkey:
             return "invalid key";
         default:
-            assert(!"should not happen");
+            assert(false && "should not happen");
             std::terminate();
         }
     }

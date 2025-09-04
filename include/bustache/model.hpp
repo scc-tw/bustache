@@ -11,8 +11,9 @@
 #include <version> 
 #include <vector>
 #include <cstring>
+#include <cstdint>
+#include <type_traits>
 #include <concepts>
-#include <functional>
 #include <variant>
 #include <span>
 #ifdef BUSTACHE_USE_FMT
@@ -94,7 +95,10 @@ namespace bustache::detail
         template<class F>
         static R call_fp(void const* f, T&&... t)
         {
-            return reinterpret_cast<F*>(f)(std::forward<T>(t)...);
+            // F is a function type (not a pointer), need to add * for function pointer
+            using FPtr = std::add_pointer_t<F>;
+            auto fp = reinterpret_cast<FPtr>(reinterpret_cast<std::uintptr_t>(f));
+            return fp(std::forward<T>(t)...);
         }
 
         void const* _data;
