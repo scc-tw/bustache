@@ -49,6 +49,7 @@ message(STATUS "")
 message(STATUS "=== Bustache Configuration ===")
 message(STATUS "Version:           ${PROJECT_VERSION}")
 message(STATUS "Build type:        ${CMAKE_BUILD_TYPE}")
+message(STATUS "C++ Standard:      C++20 (required)")
 message(STATUS "Build library:     ${BUSTACHE_BUILD_LIBRARY}")
 message(STATUS "Testing:           ${BUSTACHE_ENABLE_TESTING}")
 message(STATUS "Examples:          ${BUSTACHE_ENABLE_EXAMPLES}")
@@ -61,7 +62,7 @@ message(STATUS "")
 # =============================================================================
 # Dependencies
 # =============================================================================
-# Check for C++20 support
+# Check for C++20 compiler support
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 10.0)
         message(FATAL_ERROR "GCC/Clang 10+ required for C++20 support")

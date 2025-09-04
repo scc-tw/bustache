@@ -3,6 +3,9 @@
 
 C++20 implementation of [{{ mustache }}](http://mustache.github.io/), compliant with [spec](https://github.com/mustache/spec) v1.4.3.
 
+### Compiler Requirements
+* **C++20** *(required)*: GCC 10+, Clang 10+, MSVC 2019 16.10+ (19.29+)
+
 ### Dependencies
 * [fmt](https://github.com/fmtlib/fmt) (or C++20 `<format>`)
   > __Note__ \

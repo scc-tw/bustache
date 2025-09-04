@@ -8,6 +8,8 @@
 #include <bustache/render/string.hpp>
 #include <chrono>
 #include <sstream>
+#include <optional>
+#include <functional>
 #include "model.hpp"
 
 using namespace bustache;
@@ -260,9 +262,9 @@ TEST_CASE("performance_partial_loading_and_caching", "[performance]")
                 format("Partial " + std::to_string(i) + ": {{data}} ");
         }
         
-        auto context = [&partials](std::string const& name) -> format const* {
+        auto context = [&partials](std::string const& name) -> std::optional<std::reference_wrapper<format const>> {
             auto it = partials.find(name);
-            return it != partials.end() ? &it->second : nullptr;
+            return it != partials.end() ? std::optional{std::ref(it->second)} : std::nullopt;
         };
         
         // Template that uses many partials
@@ -309,9 +311,9 @@ TEST_CASE("performance_partial_loading_and_caching", "[performance]")
         partials["body"] = format("BODY: {{content}}");
         partials["footer"] = format("FOOTER: {{year}}");
         
-        auto context = [&partials](std::string const& name) -> format const* {
+        auto context = [&partials](std::string const& name) -> std::optional<std::reference_wrapper<format const>> {
             auto it = partials.find(name);
-            return it != partials.end() ? &it->second : nullptr;
+            return it != partials.end() ? std::optional{std::ref(it->second)} : std::nullopt;
         };
         
         // Create template with dynamic partials

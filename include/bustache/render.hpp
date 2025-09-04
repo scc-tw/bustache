@@ -1,5 +1,5 @@
 /*//////////////////////////////////////////////////////////////////////////////
-    Copyright (c) 2016-2021 Jamboree
+    Copyright (c) 2016-2025 scc
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -8,18 +8,19 @@
 #define BUSTACHE_RENDER_HPP_INCLUDED
 
 #include <bustache/model.hpp>
+#include <optional>
 
 namespace bustache
 {
     using unresolved_handler = fn_ptr<value_ptr(std::string const&)>;
 
-    using context_handler = fn_ref<format const*(std::string const&)>;
+    using context_handler = fn_ref<std::optional<std::reference_wrapper<format const>>(std::string const&)>;
 
     struct no_context_t
     {
-        format const* operator()(std::string const&) const
+        std::optional<std::reference_wrapper<format const>> operator()(std::string const&) const
         {
-            return nullptr;
+            return std::nullopt;
         }
     };
 
@@ -32,10 +33,10 @@ namespace bustache
 
         map_context(Map const& map) noexcept : map(map) {}
 
-        format const* operator()(std::string const& key) const
+        std::optional<std::reference_wrapper<format const>> operator()(std::string const& key) const
         {
             auto it = map.find(key);
-            return it == map.end() ? nullptr : &it->second;
+            return it == map.end() ? std::nullopt : std::optional{std::ref(it->second)};
         }
     };
 

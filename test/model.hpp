@@ -2,6 +2,8 @@
 #define TEST_MODEL_INCLUDED
 
 #include <variant>
+#include <optional>
+#include <functional>
 
 namespace test
 {
@@ -9,10 +11,10 @@ namespace test
     {
         using unordered_map::unordered_map;
 
-        bustache::format const* operator()(std::string const& key) const
+        std::optional<std::reference_wrapper<bustache::format const>> operator()(std::string const& key) const
         {
             auto it = find(key);
-            return it == end() ? nullptr : &it->second;
+            return it == end() ? std::nullopt : std::optional{std::ref(it->second)};
         }
     };
 

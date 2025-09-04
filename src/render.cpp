@@ -468,9 +468,9 @@ namespace bustache::detail
 
     void content_visitor::operator()(ast::type, ast::partial const* partial)
     {
-        if (auto const p = context(deref_dyn_name(partial->key)))
+        if (auto const opt_format = context(deref_dyn_name(partial->key)); opt_format)
         {
-            auto const& doc = p->doc();
+            auto const& doc = opt_format->get().doc();
             if (doc.contents.empty())
                 return;
             auto const old_size = indent.size();

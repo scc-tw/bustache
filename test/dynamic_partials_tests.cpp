@@ -8,6 +8,8 @@
 #include <bustache/render/string.hpp>
 #include <bustache/format.hpp>
 #include <unordered_map>
+#include <optional>
+#include <functional>
 #include "model.hpp"
 
 using namespace bustache;
@@ -27,9 +29,9 @@ TEST_CASE("dynamic_partials_name_resolution", "[dynamic]")
         partials["greeting"] = format("Hello {{user}}!");
         partials["farewell"] = format("Goodbye {{user}}!");
         
-        auto context = [&partials](std::string const& name) -> format const* {
+        auto context = [&partials](std::string const& name) -> std::optional<std::reference_wrapper<format const>> {
             auto it = partials.find(name);
-            return it != partials.end() ? &it->second : nullptr;
+            return it != partials.end() ? std::optional{std::ref(it->second)} : std::nullopt;
         };
         
         // Test dynamic partial resolution
@@ -47,9 +49,9 @@ TEST_CASE("dynamic_partials_name_resolution", "[dynamic]")
         partials["paragraph"] = format("<p>{{content}}</p>");
         partials["footer"] = format("<footer>{{info}}</footer>");
         
-        auto context = [&partials](std::string const& name) -> format const* {
+        auto context = [&partials](std::string const& name) -> std::optional<std::reference_wrapper<format const>> {
             auto it = partials.find(name);
-            return it != partials.end() ? &it->second : nullptr;
+            return it != partials.end() ? std::optional{std::ref(it->second)} : std::nullopt;
         };
         
         // Different data contexts selecting different partials
@@ -88,9 +90,9 @@ TEST_CASE("dynamic_partials_name_resolution", "[dynamic]")
         partials["text"] = format("{{content}}");
         partials["bold"] = format("<b>{{content}}</b>");
         
-        auto context = [&partials](std::string const& name) -> format const* {
+        auto context = [&partials](std::string const& name) -> std::optional<std::reference_wrapper<format const>> {
             auto it = partials.find(name);
-            return it != partials.end() ? &it->second : nullptr;
+            return it != partials.end() ? std::optional{std::ref(it->second)} : std::nullopt;
         };
         
         format tmpl("{{#items}}{{>*type}} {{/items}}");
@@ -117,9 +119,9 @@ TEST_CASE("dynamic_partials_context_based", "[dynamic]")
         partials["user_card"] = format("Name: {{name}}, Role: {{role}}");
         partials["admin_card"] = format("Admin: {{name}} [{{permissions}}]");
         
-        auto context = [&partials](std::string const& name) -> format const* {
+        auto context = [&partials](std::string const& name) -> std::optional<std::reference_wrapper<format const>> {
             auto it = partials.find(name);
-            return it != partials.end() ? &it->second : nullptr;
+            return it != partials.end() ? std::optional{std::ref(it->second)} : std::nullopt;
         };
         
         format tmpl("{{#user}}{{>*template}}{{/user}}");
@@ -135,9 +137,9 @@ TEST_CASE("dynamic_partials_context_based", "[dynamic]")
         partials["logged_in"] = format("Welcome back, {{username}}!");
         partials["guest"] = format("Please log in to continue.");
         
-        auto context = [&partials](std::string const& name) -> format const* {
+        auto context = [&partials](std::string const& name) -> std::optional<std::reference_wrapper<format const>> {
             auto it = partials.find(name);
-            return it != partials.end() ? &it->second : nullptr;
+            return it != partials.end() ? std::optional{std::ref(it->second)} : std::nullopt;
         };
         
         // Logged in user
@@ -170,9 +172,9 @@ TEST_CASE("dynamic_partials_missing_template", "[dynamic]")
         // Empty partial map
         std::unordered_map<std::string, format> partials;
         
-        auto context = [&partials](std::string const& name) -> format const* {
+        auto context = [&partials](std::string const& name) -> std::optional<std::reference_wrapper<format const>> {
             auto it = partials.find(name);
-            return it != partials.end() ? &it->second : nullptr;
+            return it != partials.end() ? std::optional{std::ref(it->second)} : std::nullopt;
         };
         
         format tmpl("Before {{>*partial_name}} After");
@@ -189,9 +191,9 @@ TEST_CASE("dynamic_partials_missing_template", "[dynamic]")
         std::unordered_map<std::string, format> partials;
         partials["default"] = format("Default content");
         
-        auto context = [&partials](std::string const& name) -> format const* {
+        auto context = [&partials](std::string const& name) -> std::optional<std::reference_wrapper<format const>> {
             auto it = partials.find(name);
-            return it != partials.end() ? &it->second : nullptr;
+            return it != partials.end() ? std::optional{std::ref(it->second)} : std::nullopt;
         };
         
         // Variable 'missing_var' doesn't exist in data
@@ -210,14 +212,14 @@ TEST_CASE("dynamic_partials_missing_template", "[dynamic]")
         partials["default"] = format("Default content");
         
         // Custom context that falls back to 'default' for missing partials
-        auto context = [&partials](std::string const& name) -> format const* {
+        auto context = [&partials](std::string const& name) -> std::optional<std::reference_wrapper<format const>> {
             auto it = partials.find(name);
             if (it != partials.end()) {
-                return &it->second;
+                return std::optional{std::ref(it->second)};
             }
             // Fallback to default if the requested partial doesn't exist
             it = partials.find("default");
-            return it != partials.end() ? &it->second : nullptr;
+            return it != partials.end() ? std::optional{std::ref(it->second)} : std::nullopt;
         };
         
         format tmpl("{{>*template}}");
@@ -245,9 +247,9 @@ TEST_CASE("dynamic_partials_recursive", "[dynamic]")
         // This partial references itself through a dynamic partial
         partials["recursive"] = format("Level {{counter}} {{>*partial_name}}");
         
-        auto context = [&partials](std::string const& name) -> format const* {
+        auto context = [&partials](std::string const& name) -> std::optional<std::reference_wrapper<format const>> {
             auto it = partials.find(name);
-            return it != partials.end() ? &it->second : nullptr;
+            return it != partials.end() ? std::optional{std::ref(it->second)} : std::nullopt;
         };
         
         format tmpl("{{>*partial_name}}");
@@ -269,9 +271,9 @@ TEST_CASE("dynamic_partials_recursive", "[dynamic]")
         partials["ping"] = format("Ping {{>*next}}");
         partials["pong"] = format("Pong {{>*prev}}");
         
-        auto context = [&partials](std::string const& name) -> format const* {
+        auto context = [&partials](std::string const& name) -> std::optional<std::reference_wrapper<format const>> {
             auto it = partials.find(name);
-            return it != partials.end() ? &it->second : nullptr;
+            return it != partials.end() ? std::optional{std::ref(it->second)} : std::nullopt;
         };
         
         object data{
@@ -305,9 +307,9 @@ TEST_CASE("dynamic_partials_recursive", "[dynamic]")
         partials["level2"] = format("[Level 2]");
         partials["level3"] = format("[Level 3]");
         
-        auto context = [&partials](std::string const& name) -> format const* {
+        auto context = [&partials](std::string const& name) -> std::optional<std::reference_wrapper<format const>> {
             auto it = partials.find(name);
-            return it != partials.end() ? &it->second : nullptr;
+            return it != partials.end() ? std::optional{std::ref(it->second)} : std::nullopt;
         };
         
         format tmpl("{{#levels}}{{>*template}}{{/levels}}");
