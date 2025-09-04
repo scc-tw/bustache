@@ -33,7 +33,7 @@ namespace bustache::ast
         type kind = type::null;
         unsigned index;
 
-        bool is_null() const { return kind == type::null; }
+        constexpr bool is_null() const { return kind == type::null; }
     };
 
     using text = std::string_view;

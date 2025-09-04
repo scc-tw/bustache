@@ -289,9 +289,9 @@ namespace bustache
     struct value_ref
     {
         template<Value T>
-        value_ref(T const& ref) noexcept : ptr(&ref) {}
+        constexpr value_ref(T const& ref) noexcept : ptr(&ref) {}
 
-        value_ptr get_ptr() const noexcept { return ptr; }
+        constexpr value_ptr get_ptr() const noexcept { return ptr; }
 
     private:
         value_ptr ptr;

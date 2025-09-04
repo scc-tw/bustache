@@ -32,7 +32,7 @@ namespace bustache
     {
         Map const& map;
 
-        map_context(Map const& map) noexcept : map(map) {}
+        constexpr map_context(Map const& map) noexcept : map(map) {}
 
         std::optional<std::reference_wrapper<format const>> operator()(std::string const& key) const
         {
@@ -43,7 +43,7 @@ namespace bustache
 
     namespace detail
     {
-        inline no_context_t get_context(void const*)
+        constexpr no_context_t get_context(void const*)
         {
             return {};
         }
@@ -80,7 +80,7 @@ namespace bustache::detail
         }
     };
 
-    inline strlit get_escaped(char c) noexcept
+    constexpr strlit get_escaped(char c) noexcept
     {
         switch (c)
         {
@@ -144,7 +144,7 @@ namespace bustache
 
     namespace detail
     {
-        inline no_escape_t get_escape(void const*)
+        constexpr no_escape_t get_escape(void const*)
         {
             return {};
         }
