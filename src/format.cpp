@@ -347,7 +347,7 @@ namespace bustache::parser { namespace
                 break;
             ++i;
         }
-        d.open = std::string_view(i0, i - i0);
+        d.open = std::string_view(i0, static_cast<std::size_t>(i - i0));
         skip(i, e);
         i0 = i;
         I i1 = i;
@@ -373,7 +373,7 @@ namespace bustache::parser { namespace
         skip(++i, e);
         if (!parse_lit(i, e, d.close))
             throw format_error(error_delim, i - b);
-        d.close = std::string_view(i0, i1 - i0);
+        d.close = std::string_view(i0, static_cast<std::size_t>(i1 - i0));
     }
 
     tag_result parser::expect_tag
@@ -492,7 +492,7 @@ namespace bustache::parser { namespace
                 if (parse_lit(i, e, d.open))
                 {
                     tag_result tag(expect_tag(b, i, e, d, pure, attr, section));
-                    text = std::string_view(i0, i1 - i0);
+                    text = std::string_view(i0, static_cast<std::size_t>(i1 - i0));
                     if (tag.check_standalone)
                     {
                         I const i3 = i;
@@ -508,7 +508,7 @@ namespace bustache::parser { namespace
                             else
                             {
                                 pure = false;
-                                text = std::string_view(i0, i2 - i0);
+                                text = std::string_view(i0, static_cast<std::size_t>(i2 - i0));
                                 // For end-section, we move the current pos (i)
                                 // since i0 is local to the section and is not
                                 // propagated upwards.
@@ -519,11 +519,11 @@ namespace bustache::parser { namespace
                         tag.is_standalone = true;
                     }
                     if (!tag.is_standalone)
-                        text = std::string_view(i0, i2 - i0);
+                        text = std::string_view(i0, static_cast<std::size_t>(i2 - i0));
                     else if (attr.kind == ast::type::partial)
                     {
                         auto& partial = ctx.partials[attr.index];
-                        partial.indent.assign(i1, i2 - i1);
+                        partial.indent.assign(i1, static_cast<std::size_t>(i2 - i1));
                     }
                     i0 = i;
                     return i == e || tag.is_end_section;
@@ -535,7 +535,7 @@ namespace bustache::parser { namespace
                 }
             }
         }
-        text = std::string_view(i0, i - i0);
+        text = std::string_view(i0, static_cast<std::size_t>(i - i0));
         return true;
     }
 

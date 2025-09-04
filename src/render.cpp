@@ -464,13 +464,13 @@ namespace bustache::detail
         {
             if (*i++ == '\n')
             {
-                raw_os(std::span<const char>(i0, i - i0));
+                raw_os(std::span<const char>(i0, static_cast<std::size_t>(i - i0)));
                 raw_os(std::span<const char>(ib, in));
                 i0 = i;
             }
         }
         needs_indent = *i++ == '\n';
-        raw_os(std::span<const char>(i0, i - i0));
+        raw_os(std::span<const char>(i0, static_cast<std::size_t>(i - i0)));
     }
 
     void content_visitor::operator()(ast::type, ast::partial const* partial)

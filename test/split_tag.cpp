@@ -65,11 +65,11 @@ struct bustache::impl_object<Sep>
         {
             if (*i == self.sep)
             {
-                v.push_back(std::string_view(i0, i - i0));
+                v.push_back(std::string_view(i0, static_cast<std::size_t>(i - i0)));
                 i0 = i + 1;
             }
         } while (++i != e);
-        v.push_back(std::string_view(i0, i - i0));
+        v.push_back(std::string_view(i0, static_cast<std::size_t>(i - i0)));
         return visit(&v);
     }
 };
