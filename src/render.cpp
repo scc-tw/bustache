@@ -17,15 +17,17 @@ namespace bustache::detail
 
         static object_ptr from(value_ptr val)
         {
-            if (val.vptr->kind == model::object)
-                return {val.data, static_cast<value_vtable const*>(val.vptr)->get};
+            auto vptr = val.get_vptr();
+            if (vptr->kind == model::object)
+                return {val.get_data(), static_cast<value_vtable const*>(vptr)->get};
             return {nullptr, object_trait::get_default};
         }
 
         static object_ptr from_nested(value_ptr val)
         {
-            if (val.vptr->kind < model::lazy_value)
-                return {val.data, static_cast<value_vtable const*>(val.vptr)->get};
+            auto vptr = val.get_vptr();
+            if (vptr->kind < model::lazy_value)
+                return {val.get_data(), static_cast<value_vtable const*>(vptr)->get};
             return {nullptr, object_trait::get_default};
         }
 
@@ -205,7 +207,8 @@ namespace bustache::detail
         void expand_on_object(ast::content_list const& contents, value_ptr val)
         {
             auto const old_cursor = cursor;
-            object_ptr data{val.data, static_cast<value_vtable const*>(val.vptr)->get};
+            auto vptr = val.get_vptr();
+            object_ptr data{val.get_data(), static_cast<value_vtable const*>(vptr)->get};
             content_scope curr{scope, data};
             cursor = val;
             scope = &curr;
@@ -216,7 +219,7 @@ namespace bustache::detail
 
         void expand_on_value(ast::content_list const& contents, value_ptr val)
         {
-            if (val.vptr->kind == model::object)
+            if (val.get_vptr()->kind == model::object)
                 expand_on_object(contents, val);
             else
             {
@@ -307,10 +310,12 @@ namespace bustache::detail
 
     void content_visitor::print_value(output_handler os, value_ptr val, char const* sepc, bool interpolation)
     {
-        switch (val.vptr->kind)
+        auto vptr = val.get_vptr();
+        auto data = val.get_data();
+        switch (vptr->kind)
         {
         case model::lazy_value:
-            static_cast<lazy_value_vtable const*>(val.vptr)->call(val.data, nullptr, [=, this](value_ptr val)
+            static_cast<lazy_value_vtable const*>(vptr)->call(data, nullptr, [=, this](value_ptr val)
             {
                 print_value(os, val, sepc, interpolation);
             });
@@ -318,12 +323,12 @@ namespace bustache::detail
         case model::lazy_format:
             if (interpolation)
             {
-                auto const fmt = static_cast<lazy_format_vtable const*>(val.vptr)->call(val.data, nullptr);
+                auto const fmt = static_cast<lazy_format_vtable const*>(vptr)->call(data, nullptr);
                 visit_within(fmt.doc());
             }
             break;
         default:
-            static_cast<value_vtable const*>(val.vptr)->print(val.data, os, sepc);
+            static_cast<value_vtable const*>(vptr)->print(data, os, sepc);
             break;
         }
     }
@@ -341,7 +346,8 @@ namespace bustache::detail
     bool content_visitor::expand_section(ast::type tag, ast::content_list const& contents, value_ptr val)
     {
         bool inverted = false;
-        auto kind = val.vptr->kind;
+        auto vptr = val.get_vptr();
+        auto kind = vptr->kind;
         if (kind < model::lazy_value)
         {
             switch (tag)
@@ -366,19 +372,19 @@ namespace bustache::detail
         case model::null:
             return inverted;
         case model::atom:
-            return static_cast<value_vtable const*>(val.vptr)->test(val.data) ^ inverted;
+            return static_cast<value_vtable const*>(vptr)->test(val.get_data()) ^ inverted;
         case model::object:
             expand_on_object(contents, val);
             return false;
         case model::list:
         {
-            auto const vt = static_cast<value_vtable const*>(val.vptr);
+            auto const vt = static_cast<value_vtable const*>(vptr);
             auto const old_cursor = cursor;
             if (!vt->iterate)
                 expand_on_value(contents, val);
             else
             {
-                vt->iterate(val.data, [&](value_ptr val)
+                vt->iterate(val.get_data(), [&](value_ptr val)
                 {
                     expand_on_value(contents, val);
                 });
@@ -390,7 +396,7 @@ namespace bustache::detail
         {
             bool ret = false;
             ast::view const view{*ctx, contents};
-            static_cast<lazy_value_vtable const*>(val.vptr)->call(val.data, &view, [&](value_ptr val)
+            static_cast<lazy_value_vtable const*>(vptr)->call(val.get_data(), &view, [&](value_ptr val)
             {
                 ret = expand_section(tag, contents, val);
             });
@@ -401,7 +407,7 @@ namespace bustache::detail
             if (tag == ast::type::filter)
                 return true;
             ast::view const view{*ctx, contents};
-            auto const fmt = static_cast<lazy_format_vtable const*>(val.vptr)->call(val.data, &view);
+            auto const fmt = static_cast<lazy_format_vtable const*>(vptr)->call(val.get_data(), &view);
             visit_within(fmt.doc());
             return false;
         }

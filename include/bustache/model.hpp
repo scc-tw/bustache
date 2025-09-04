@@ -35,52 +35,7 @@ namespace bustache::detail
     namespace fmt = ::std;
 #endif
 
-#ifdef __cpp_lib_ranges
     namespace ranges = ::std::ranges;
-#else
-    // Imperfect substitute for some range utilities.
-    namespace ranges
-    {
-        namespace _cpo
-        {
-            using ::std::begin;
-            using ::std::end;
-
-            struct begin_t
-            {
-                template<class T>
-                auto operator()(T&& t) const -> decltype(begin(std::forward<T>(t)))
-                {
-                    return begin(std::forward<T>(t));
-                }
-            };
-
-            struct end_t
-            {
-                template<class T>
-                auto operator()(T&& t) const -> decltype(end(std::forward<T>(t)))
-                {
-                    return end(std::forward<T>(t));
-                }
-            };
-        }
-        constexpr _cpo::begin_t begin;
-        constexpr _cpo::end_t end;
-
-        template<class T>
-        concept Range = requires(T& t)
-        {
-            begin(t);
-            end(t);
-        };
-
-        template<class T>
-        using iterator_t = decltype(begin(std::declval<T&>()));
-
-        template<Range R>
-        using range_value_t = std::iter_value_t<iterator_t<R>>;
-    }
-#endif
 
     struct vtable_base;
 
@@ -89,6 +44,25 @@ namespace bustache::detail
     {
         return *static_cast<T const*>(p);
     }
+
+    // Variant holder types for type-safe storage
+    struct lazy_format_holder
+    {
+        void const* data;
+        vtable_base const* vptr;
+    };
+
+    struct lazy_value_holder
+    {
+        void const* data;
+        vtable_base const* vptr;
+    };
+
+    struct model_holder
+    {
+        void const* data;
+        vtable_base const* vptr;
+    };
 
     template<class>
     struct fn_base;
@@ -257,8 +231,8 @@ namespace bustache
 
     struct value_ptr
     {
-        constexpr value_ptr() { reset(); }
-        constexpr value_ptr(std::nullptr_t) { reset(); }
+        constexpr value_ptr() : storage(std::monostate{}) {}
+        constexpr value_ptr(std::nullptr_t) : storage(std::monostate{}) {}
 
         template<Model T>
         value_ptr(T const* p) noexcept { p ? init_model(p) : reset(); }
@@ -272,9 +246,13 @@ namespace bustache
         template<Lazy_format F>
         value_ptr(F const* f) noexcept { f ? init_lazy_format(f) : reset(); }
 
-        constexpr explicit operator bool() const { return !!data; }
+        constexpr explicit operator bool() const { return !std::holds_alternative<std::monostate>(storage); }
 
-        constexpr void reset();
+        constexpr void reset() { storage = std::monostate{}; }
+
+        // Get data pointer for compatibility with existing code
+        void const* get_data() const noexcept;
+        detail::vtable_base const* get_vptr() const noexcept;
 
     private:
         template<class T>
@@ -295,8 +273,14 @@ namespace bustache
         friend struct detail::content_visitor;
         friend struct detail::object_ptr;
 
-        void const* data;
-        detail::vtable_base const* vptr;
+        // Type-safe storage using std::variant instead of void*
+        using storage_type = std::variant<
+            std::monostate,
+            detail::model_holder,
+            detail::lazy_format_holder,
+            detail::lazy_value_holder
+        >;
+        storage_type storage;
     };
 
     using value_handler = fn_ref<void(value_ptr)>;
@@ -524,32 +508,44 @@ namespace bustache::detail
 
 namespace bustache
 {
-    constexpr void value_ptr::reset()
+    // Getter methods for compatibility with existing code
+    inline void const* value_ptr::get_data() const noexcept
     {
-        data = nullptr;
-        vptr = &detail::value_vt<void>;
+        return std::visit([](auto const& v) -> void const* {
+            if constexpr (std::is_same_v<std::decay_t<decltype(v)>, std::monostate>)
+                return nullptr;
+            else
+                return v.data;
+        }, storage);
+    }
+
+    inline detail::vtable_base const* value_ptr::get_vptr() const noexcept
+    {
+        return std::visit([](auto const& v) -> detail::vtable_base const* {
+            if constexpr (std::is_same_v<std::decay_t<decltype(v)>, std::monostate>)
+                return &detail::value_vt<void>;
+            else
+                return v.vptr;
+        }, storage);
     }
 
     template<class T>
     inline void value_ptr::init_model(T const* p) noexcept
     {
         static_assert(sizeof(detail::check_model<impl_model<T>::kind, T>));
-        data = p;
-        vptr = &detail::value_vt<T>;
+        storage = detail::model_holder{p, &detail::value_vt<T>};
     }
 
     template<class F>
     inline void value_ptr::init_lazy_format(F const* f) noexcept
     {
-        data = f;
-        vptr = &detail::lazy_format_vt<F>;
+        storage = detail::lazy_format_holder{f, &detail::lazy_format_vt<F>};
     }
 
     template<class F>
     inline void value_ptr::init_lazy_value(F const* f) noexcept
     {
-        data = f;
-        vptr = &detail::lazy_value_vt<F>;
+        storage = detail::lazy_value_holder{f, &detail::lazy_value_vt<F>};
     }
 
     template<>
