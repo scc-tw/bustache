@@ -93,8 +93,8 @@ namespace bustache::detail
                     key_cache.assign(k0, sub.i);
                     return obj.get(key_cache, [this](value_ptr val)
                     {
-                        if (auto const obj = object_ptr::from(val))
-                            next(obj);
+                        if (auto const next_obj = object_ptr::from(val))
+                            next(next_obj);
                     });
                 }
                 else
@@ -143,12 +143,12 @@ namespace bustache::detail
 
         content_visitor
         (
-            ast::context const& ctx, content_scope const& scope, value_ptr cursor,
-            output_handler raw_os, output_handler escape_os, context_handler context,
+            ast::context const& ctx_param, content_scope const& scope_param, value_ptr cursor_param,
+            output_handler raw_os_param, output_handler escape_os_param, context_handler context_param,
             unresolved_handler f
         )
-            : ctx(&ctx), scope(&scope), cursor(cursor)
-            , raw_os(raw_os), escape_os(escape_os), context(context)
+            : ctx(&ctx_param), scope(&scope_param), cursor(cursor_param)
+            , raw_os(raw_os_param), escape_os(escape_os_param), context(context_param)
             , variable_unresolved(f)
             , needs_indent()
         {}
@@ -316,9 +316,9 @@ namespace bustache::detail
         switch (vptr->kind)
         {
         case model::lazy_value:
-            static_cast<lazy_value_vtable const*>(vptr)->call(data, nullptr, [=, this](value_ptr val)
+            static_cast<lazy_value_vtable const*>(vptr)->call(data, nullptr, [=, this](value_ptr lazy_val)
             {
-                print_value(os, val, sepc, interpolation);
+                print_value(os, lazy_val, sepc, interpolation);
             });
             break;
         case model::lazy_format:
@@ -385,9 +385,9 @@ namespace bustache::detail
                 expand_on_value(contents, val);
             else
             {
-                vt->iterate(val.get_data(), [&](value_ptr val)
+                vt->iterate(val.get_data(), [&](value_ptr item_val)
                 {
-                    expand_on_value(contents, val);
+                    expand_on_value(contents, item_val);
                 });
             }
             cursor = old_cursor;
@@ -397,9 +397,9 @@ namespace bustache::detail
         {
             bool ret = false;
             ast::view const view{*ctx, contents};
-            static_cast<lazy_value_vtable const*>(vptr)->call(val.get_data(), &view, [&](value_ptr val)
+            static_cast<lazy_value_vtable const*>(vptr)->call(val.get_data(), &view, [&](value_ptr lazy_val)
             {
-                ret = expand_section(tag, contents, val);
+                ret = expand_section(tag, contents, lazy_val);
             });
             return ret;
         }

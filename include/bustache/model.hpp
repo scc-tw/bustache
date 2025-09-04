@@ -308,7 +308,7 @@ namespace bustache::detail
     {
         using value_type = char;
 
-        explicit output_buffer(output_handler os) : os(os) {}
+        explicit output_buffer(output_handler os_handler) : os(os_handler) {}
 
         void push_back(char c)
         {

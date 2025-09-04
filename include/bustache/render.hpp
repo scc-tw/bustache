@@ -33,7 +33,7 @@ namespace bustache
     {
         Map const& map;
 
-        constexpr map_context(Map const& map) noexcept : map(map) {}
+        constexpr map_context(Map const& m) noexcept : map(m) {}
 
         std::optional<std::reference_wrapper<format const>> operator()(std::string_view key) const
         {
