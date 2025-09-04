@@ -607,10 +607,10 @@ namespace bustache
             _text.reset(data);
             for (auto& text : _doc.ctx.texts)
             {
-                auto n = text.size();
-                std::memcpy(data, text.data(), n);
-                text = {data, n};
-                data += n;
+                auto text_size = text.size();
+                std::memcpy(data, text.data(), text_size);
+                text = {data, text_size};
+                data += text_size;
             }
         }
     }
