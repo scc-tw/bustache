@@ -14,6 +14,30 @@ function(add_catch_test name)
         ${PROJECT_NAME} Catch2::Catch2 Catch2::Catch2WithMain
     )
     target_compile_features(${TEST_TARGET} PUBLIC cxx_std_20)
+    
+    # Apply developer settings to test targets if in developer mode
+    if(BUSTACHE_DEVELOPER_MODE AND TARGET bustache_developer_settings)
+        # Copy sanitizer and other developer settings to test targets
+        get_target_property(DEV_COMPILE_OPTIONS bustache_developer_settings INTERFACE_COMPILE_OPTIONS)
+        get_target_property(DEV_LINK_OPTIONS bustache_developer_settings INTERFACE_LINK_OPTIONS)
+        get_target_property(DEV_COMPILE_DEFINITIONS bustache_developer_settings INTERFACE_COMPILE_DEFINITIONS)
+        
+        if(DEV_COMPILE_OPTIONS)
+            target_compile_options(${TEST_TARGET} PRIVATE ${DEV_COMPILE_OPTIONS})
+        endif()
+        if(DEV_LINK_OPTIONS)
+            target_link_options(${TEST_TARGET} PRIVATE ${DEV_LINK_OPTIONS})
+        endif()
+        if(DEV_COMPILE_DEFINITIONS)
+            target_compile_definitions(${TEST_TARGET} PRIVATE ${DEV_COMPILE_DEFINITIONS})
+        endif()
+        
+        # For MSVC ASAN, ensure consistent runtime library settings
+        if(MSVC AND BUSTACHE_ENABLE_SANITIZER_ADDRESS)
+            set_property(TARGET ${TEST_TARGET} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+        endif()
+    endif()
+    
     add_test(${TEST_TARGET} ${TEST_TARGET})
 endfunction()
 

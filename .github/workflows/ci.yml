@@ -28,6 +28,12 @@ jobs:
           # Thread sanitizer with Release builds can be flaky
           - build-type: Release
             sanitizer: 'thread'
+          # Reduce GCC 13 testing since it requires PPA (keep essential tests only)
+          - gcc-version: 13
+            sanitizer: 'thread'
+          - gcc-version: 13
+            build-type: Release
+            sanitizer: 'undefined'
 
     steps:
       - name: Checkout
@@ -36,6 +42,11 @@ jobs:
       - name: Install GCC ${{ matrix.gcc-version }}
         run: |
           sudo apt-get update
+          # Add toolchain PPA for newer GCC versions
+          if [[ "${{ matrix.gcc-version }}" -ge "13" ]]; then
+            sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+            sudo apt-get update
+          fi
           sudo apt-get install -y gcc-${{ matrix.gcc-version }} g++-${{ matrix.gcc-version }}
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{ matrix.gcc-version }} 100
           sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-${{ matrix.gcc-version }} 100
@@ -211,8 +222,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          # Install cmake and ninja via Homebrew
-          brew install cmake ninja
+          # Install ninja via Homebrew (cmake is pre-installed on GitHub Actions macOS runners)
+          brew install ninja
+          # Verify cmake and ninja are available
+          echo "cmake version: $(cmake --version)"
+          echo "ninja version: $(ninja --version)"
 
       - name: Configure CMake
         run: |
@@ -246,19 +260,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Visual Studio 2019
-          - os: windows-2019
-            vs-version: 2019
-            build-type: Debug
-            sanitizer: false
-          - os: windows-2019
-            vs-version: 2019
-            build-type: Release
-            sanitizer: false
-          - os: windows-2019
-            vs-version: 2019
-            build-type: Debug
-            sanitizer: true
           # Visual Studio 2022
           - os: windows-2022
             vs-version: 2022
@@ -270,6 +271,19 @@ jobs:
             sanitizer: false
           - os: windows-2022
             vs-version: 2022
+            build-type: Debug
+            sanitizer: true
+          # Visual Studio 2025
+          - os: windows-2025
+            vs-version: 2025
+            build-type: Debug
+            sanitizer: false
+          - os: windows-2025
+            vs-version: 2025
+            build-type: Release
+            sanitizer: false
+          - os: windows-2025
+            vs-version: 2025
             build-type: Debug
             sanitizer: true
 
@@ -284,7 +298,7 @@ jobs:
 
       - name: Configure CMake
         run: |
-          cmake -S . -B build -G "Visual Studio ${{ matrix.vs-version == '2019' && '16 2019' || '17 2022' }}" -A x64 `
+          cmake -S . -B build -G "Visual Studio ${{ matrix.vs-version == '2022' && '17 2022' || '18 2025' }}" -A x64 `
             -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} `
             -DBUSTACHE_ENABLE_TESTING=ON `
             -DBUSTACHE_DEVELOPER_MODE=ON `
