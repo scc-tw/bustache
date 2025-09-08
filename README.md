@@ -11,18 +11,18 @@ C++20 implementation of [{{ mustache }}](http://mustache.github.io/), compliant 
 
 | Platform | Compiler | Versions | Build Types | Sanitizers | Status |
 |----------|----------|----------|-------------|------------|--------|
-| **Linux** | GCC | 10, 11, 12, 13, 14, 15†, 16† | Debug, Release | ASan, UBSan, TSan | [![Linux GCC](https://github.com/scc-tw/bustache/workflows/CI/badge.svg?event=push)](https://github.com/scc-tw/bustache/actions) |
-| **Linux** | Clang | 15, 16, 17, 18, 19, 20†, 21†, 22† | Debug, Release | Basic | [![Linux Clang](https://github.com/scc-tw/bustache/workflows/CI/badge.svg?event=push)](https://github.com/scc-tw/bustache/actions) |
-| **macOS** | Apple Clang | Xcode 15.2, 15.4 | Debug, Release | ASan, UBSan | [![macOS](https://github.com/scc-tw/bustache/workflows/CI/badge.svg?event=push)](https://github.com/scc-tw/bustache/actions) |
-| **Windows** | MSVC 2022 | VS 17 2022 | Debug, Release | ASan | [![Windows](https://github.com/scc-tw/bustache/workflows/CI/badge.svg?event=push)](https://github.com/scc-tw/bustache/actions) |
+| **Linux** | GCC | 10, 11, 12, 13, 14, 15†, 16† | Debug, Release | ASan, UBSan, TSan | [![CI](https://github.com/scc-tw/bustache/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/scc-tw/bustache/actions/workflows/ci.yml) |
+| **Linux** | Clang | 15, 16, 17, 18, 19, 20†, 21†, 22† | Debug, Release | Basic | [![CI](https://github.com/scc-tw/bustache/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/scc-tw/bustache/actions/workflows/ci.yml) |
+| **macOS** | Apple Clang | Xcode 15.2, 15.4 | Debug, Release | ASan, UBSan | [![CI](https://github.com/scc-tw/bustache/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/scc-tw/bustache/actions/workflows/ci.yml) |
+| **Windows** | MSVC 2022 | VS 17 2022 | Debug, Release | ASan | [![CI](https://github.com/scc-tw/bustache/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/scc-tw/bustache/actions/workflows/ci.yml) |
 
 ### Special Configurations
 | Configuration | Platform | Compiler | Purpose | Status |
 |---------------|----------|----------|---------|--------|
-| **Header-only** | Ubuntu 22.04 | GCC | Test header-only mode | [![Special Configs](https://github.com/scc-tw/bustache/workflows/CI/badge.svg?event=push)](https://github.com/scc-tw/bustache/actions) |
-| **fmt Library** | Ubuntu 22.04 | Clang 15 | Test with external fmt | [![Special Configs](https://github.com/scc-tw/bustache/workflows/CI/badge.svg?event=push)](https://github.com/scc-tw/bustache/actions) |
+| **Header-only** | Ubuntu 22.04 | GCC | Test header-only mode | [![CI](https://github.com/scc-tw/bustache/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/scc-tw/bustache/actions/workflows/ci.yml) |
+| **fmt Library** | Ubuntu 22.04 | Clang 15 | Test with external fmt | [![CI](https://github.com/scc-tw/bustache/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/scc-tw/bustache/actions/workflows/ci.yml) |
 | **Coverage** | Ubuntu 22.04 | GCC | Code coverage analysis | [![codecov](https://codecov.io/gh/scc-tw/bustache/branch/master/graph/badge.svg)](https://codecov.io/gh/scc-tw/bustache) |
-| **Documentation** | Ubuntu 22.04 | GCC | Docs & Examples | [![Docs](https://github.com/scc-tw/bustache/workflows/CI/badge.svg?event=push)](https://github.com/scc-tw/bustache/actions) |
+| **Documentation** | Ubuntu 22.04 | GCC | Docs & Examples | [![CI](https://github.com/scc-tw/bustache/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/scc-tw/bustache/actions/workflows/ci.yml) |
 
 **Legend:**
 - † = Experimental versions (allowed to fail)
