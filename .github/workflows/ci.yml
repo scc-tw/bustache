@@ -8,20 +8,26 @@ on:
 
 jobs:
   # =============================================================================
-  # Linux GCC Builds with Sanitizers
+  # Linux GCC Builds with Sanitizers (using cplusplus-ci Docker images)
   # =============================================================================
   linux-gcc:
     name: Linux GCC ${{ matrix.gcc-version }} (${{ matrix.build-type }}${{ matrix.sanitizer && ', ' || '' }}${{ matrix.sanitizer }})
-    runs-on: ubuntu-24.04
-    continue-on-error: ${{ matrix.gcc-version == 15 }}
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.gcc-version == 15 || matrix.gcc-version == 16 }}
+    container:
+      image: ghcr.io/mattkretz/cplusplus-ci/gcc${{ matrix.gcc-version }}
     strategy:
       fail-fast: false
       matrix:
-        gcc-version: [12, 13, 14, 15]
+        gcc-version: [9, 10, 11, 12, 13, 14, 15, 16]
         build-type: [Debug, Release]
         sanitizer: ['', 'address', 'undefined', 'thread']
         exclude:
           # Don't run all sanitizers on all versions to reduce CI time
+          - gcc-version: 9
+            sanitizer: 'thread'
+          - gcc-version: 10
+            sanitizer: 'thread'
           - gcc-version: 12
             sanitizer: 'thread'
           - gcc-version: 14  
@@ -29,7 +35,13 @@ jobs:
           # Thread sanitizer with Release builds can be flaky
           - build-type: Release
             sanitizer: 'thread'
-          # Reduce testing on newer GCC versions (keep essential tests only)
+          # Reduce testing on newer/older GCC versions (keep essential tests only)
+          - gcc-version: 9
+            build-type: Release
+            sanitizer: 'undefined'
+          - gcc-version: 10
+            build-type: Release
+            sanitizer: 'undefined'
           - gcc-version: 14
             build-type: Release
             sanitizer: 'undefined'
@@ -38,33 +50,20 @@ jobs:
           - gcc-version: 15
             build-type: Release
             sanitizer: 'undefined'
-          # GCC 15 is experimental - allow it to fail and only test essential configurations
+          - gcc-version: 16
+            sanitizer: 'thread'
+          - gcc-version: 16
+            build-type: Release
+            sanitizer: 'undefined'
+          # GCC 15/16 are experimental - allow them to fail and only test essential configurations
           - gcc-version: 15
+            sanitizer: 'address'
+          - gcc-version: 16
             sanitizer: 'address'
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Install GCC ${{ matrix.gcc-version }} (via setup-gcc)
-        if: matrix.gcc-version == 15
-        uses: egor-tensin/setup-gcc@v1
-        with:
-          version: ${{ matrix.gcc-version }}
-          platform: x64
-
-      - name: Install GCC ${{ matrix.gcc-version }} (via apt)
-        if: matrix.gcc-version != 15
-        run: |
-          sudo apt-get update
-          # Add toolchain PPA for newer GCC versions
-          if [[ "${{ matrix.gcc-version }}" -ge "13" ]]; then
-            sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
-            sudo apt-get update
-          fi
-          sudo apt-get install -y gcc-${{ matrix.gcc-version }} g++-${{ matrix.gcc-version }}
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{ matrix.gcc-version }} 100
-          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-${{ matrix.gcc-version }} 100
 
       - name: Verify GCC Installation
         run: |
@@ -72,15 +71,11 @@ jobs:
           g++ --version
           echo "GCC version verification completed"
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get install -y cmake ninja-build libfmt-dev
-
       - name: Configure CMake
         run: |
           cmake -S . -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
-            -DCMAKE_CXX_COMPILER=g++-${{ matrix.gcc-version }} \
+            -DCMAKE_CXX_COMPILER=g++ \
             -DBUSTACHE_ENABLE_TESTING=ON \
             -DBUSTACHE_DEVELOPER_MODE=ON \
             ${{ matrix.sanitizer == 'address' && '-DBUSTACHE_ENABLE_SANITIZER_ADDRESS=ON' || '' }} \
@@ -101,52 +96,74 @@ jobs:
           TSAN_OPTIONS: abort_on_error=1
 
   # =============================================================================
-  # Linux LLVM Clang Builds with Sanitizers  
+  # Linux LLVM Clang Builds with Sanitizers (using cplusplus-ci Docker images)
   # =============================================================================
   linux-clang:
     name: Linux Clang ${{ matrix.clang-version }} (${{ matrix.build-type }}${{ matrix.sanitizer && ', ' || '' }}${{ matrix.sanitizer }})
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.clang-version >= 20 }}
+    container:
+      image: ghcr.io/mattkretz/cplusplus-ci/clang${{ matrix.clang-version }}
     strategy:
       fail-fast: false
       matrix:
-        clang-version: [13, 14, 15, 16, 17]
+        clang-version: [14, 15, 16, 17, 18, 19, 20, 21, 22]
         build-type: [Debug, Release]
         sanitizer: ['', 'address', 'undefined', 'memory', 'thread']
         exclude:
           # Memory sanitizer only on newer Clang versions
-          - clang-version: 13
-            sanitizer: 'memory'
           - clang-version: 14
             sanitizer: 'memory'
-          # Don't run all sanitizers on all versions
-          - clang-version: 13
+          - clang-version: 15
+            sanitizer: 'memory'
+          # Don't run all sanitizers on all versions to reduce CI time
+          - clang-version: 14
             sanitizer: 'thread'
-          - clang-version: 14
+          - clang-version: 15
+            sanitizer: 'thread'
+          - clang-version: 16
             sanitizer: 'thread'
           # Thread sanitizer with Release builds can be flaky
           - build-type: Release
             sanitizer: 'thread'
+          # Reduce testing on newer Clang versions (keep essential tests only)
+          - clang-version: 20
+            sanitizer: 'thread'
+          - clang-version: 20
+            build-type: Release
+            sanitizer: 'undefined'
+          - clang-version: 21
+            sanitizer: 'thread'
+          - clang-version: 21
+            build-type: Release
+            sanitizer: 'undefined'
+          - clang-version: 22
+            sanitizer: 'thread'
+          - clang-version: 22
+            build-type: Release
+            sanitizer: 'undefined'
+          # Newer Clang versions are experimental - allow them to fail and only test essential configurations
+          - clang-version: 20
+            sanitizer: 'address'
+          - clang-version: 21
+            sanitizer: 'address'
+          - clang-version: 22
+            sanitizer: 'address'
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Clang ${{ matrix.clang-version }}
+      - name: Verify Clang Installation
         run: |
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-          sudo add-apt-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-${{ matrix.clang-version }} main"
-          sudo apt-get update
-          sudo apt-get install -y clang-${{ matrix.clang-version }} libc++-${{ matrix.clang-version }}-dev libc++abi-${{ matrix.clang-version }}-dev
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get install -y cmake ninja-build libfmt-dev
+          clang++ --version
+          echo "Clang version verification completed"
 
       - name: Configure CMake
         run: |
           cmake -S . -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} \
-            -DCMAKE_CXX_COMPILER=clang++-${{ matrix.clang-version }} \
+            -DCMAKE_CXX_COMPILER=clang++ \
             -DBUSTACHE_ENABLE_TESTING=ON \
             -DBUSTACHE_DEVELOPER_MODE=ON \
             ${{ matrix.sanitizer == 'address' && '-DBUSTACHE_ENABLE_SANITIZER_ADDRESS=ON' || '' }} \
