@@ -5,13 +5,32 @@ if(NOT Catch2_FOUND)
     include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/FetchCatch2.cmake)
 endif()
 
+# Additional safety check: ensure Catch2 targets have correct runtime library on MSVC
+if(MSVC AND CMAKE_MSVC_RUNTIME_LIBRARY)
+    foreach(target IN ITEMS Catch2 Catch2WithMain)
+        if(TARGET ${target})
+            get_target_property(current_runtime ${target} MSVC_RUNTIME_LIBRARY)
+            if(NOT current_runtime STREQUAL CMAKE_MSVC_RUNTIME_LIBRARY)
+                message(STATUS "Correcting MSVC runtime library for ${target}: ${current_runtime} -> ${CMAKE_MSVC_RUNTIME_LIBRARY}")
+                set_property(TARGET ${target} PROPERTY MSVC_RUNTIME_LIBRARY ${CMAKE_MSVC_RUNTIME_LIBRARY})
+            else()
+                message(STATUS "Catch2 target ${target} already has correct runtime library: ${current_runtime}")
+            endif()
+        endif()
+    endforeach()
+endif()
+
 function(add_catch_test name)
     set(TEST_TARGET test_${name})
     add_executable(${TEST_TARGET}
         ${name}.cpp
     )
+    
+    # Ensure C++ linker is used (prevents linking with C linker)
+    set_target_properties(${TEST_TARGET} PROPERTIES LINKER_LANGUAGE CXX)
+    
     target_link_libraries(${TEST_TARGET}
-        ${PROJECT_NAME} Catch2::Catch2 Catch2::Catch2WithMain
+        ${PROJECT_NAME} Catch2::Catch2WithMain
     )
     target_compile_features(${TEST_TARGET} PUBLIC cxx_std_20)
     

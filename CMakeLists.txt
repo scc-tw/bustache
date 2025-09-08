@@ -35,7 +35,17 @@ include(CMakePackageConfigHelpers)
 # =============================================================================
 # Ensure consistent MSVC runtime library across all targets and dependencies
 # This prevents mixing static/dynamic CRTs which causes linker errors
+
+# Set the policy FIRST before any other configuration
+if(POLICY CMP0091)
+    cmake_policy(SET CMP0091 NEW)
+endif()
+
 if(MSVC)
+    # Set the default policy for all subdirectories (including FetchContent)
+    # This ensures that all dependencies use the same runtime library
+    set(CMAKE_POLICY_DEFAULT_CMP0091 NEW)
+    
     if(BUSTACHE_MSVC_STATIC_RUNTIME)
         # Use static runtime library (MTd for Debug, MT for Release)
         set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
@@ -46,9 +56,14 @@ if(MSVC)
         message(STATUS "MSVC Runtime Library: Dynamic (MD/MDd)")
     endif()
     
-    # Ensure this policy is set for consistent behavior
-    cmake_policy(SET CMP0091 NEW)
+    message(STATUS "MSVC Runtime Library Policy CMP0091 set to NEW for consistent behavior")
 endif()
+
+# =============================================================================
+# Global Settings
+# =============================================================================
+# Enable PIC for all targets to avoid DT_TEXTREL warnings when linking static libs into PIE
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # =============================================================================
 # Project Options

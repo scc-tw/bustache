@@ -253,7 +253,7 @@ namespace bustache
 
         constexpr explicit operator bool() const { return !std::holds_alternative<std::monostate>(storage); }
 
-        constexpr void reset() { storage = std::monostate{}; }
+        void reset() { storage = std::monostate{}; }
 
         // Get data pointer for compatibility with existing code
         void const* get_data() const noexcept;
