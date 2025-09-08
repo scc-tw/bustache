@@ -4,6 +4,12 @@
 #include <variant>
 #include <optional>
 #include <functional>
+#include <unordered_map>
+#include <vector>
+#include <string>
+#include <string_view>
+#include <algorithm>
+#include <bustache/format.hpp>
 
 namespace test
 {
@@ -37,6 +43,26 @@ namespace test
         using variant::variant;
 
         value(char const* str) : variant(std::string(str)) {}
+        
+        // Explicit default constructor to ensure proper initialization
+        value() : variant(nullptr) {}
+        
+        // Explicit move constructor to avoid GCC 13 uninitialized warnings
+        value(value&& other) noexcept : variant(std::move(static_cast<variant&>(other))) {}
+        
+        // Explicit copy constructor
+        value(const value& other) : variant(static_cast<const variant&>(other)) {}
+        
+        // Assignment operators
+        value& operator=(value&& other) noexcept {
+            static_cast<variant&>(*this) = std::move(static_cast<variant&>(other));
+            return *this;
+        }
+        
+        value& operator=(const value& other) {
+            static_cast<variant&>(*this) = static_cast<const variant&>(other);
+            return *this;
+        }
     };
 
     object::const_iterator object::find(std::string_view key) const
