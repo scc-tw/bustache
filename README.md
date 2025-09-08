@@ -1,7 +1,36 @@
-{{ bustache }} <!-- [![Try it online][badge.wandbox]](https://wandbox.org/permlink/HC4GG9QxCw6dsygF) -->
+{{ bustache }}
 ========
 
+[![CI](https://github.com/scc-tw/bustache/workflows/CI/badge.svg)](https://github.com/scc-tw/bustache/actions)
+[![codecov](https://codecov.io/gh/scc-tw/bustache/branch/master/graph/badge.svg)](https://codecov.io/gh/scc-tw/bustache)
+<!-- [![Try it online][badge.wandbox]](https://wandbox.org/permlink/HC4GG9QxCw6dsygF) -->
+
 C++20 implementation of [{{ mustache }}](http://mustache.github.io/), compliant with [spec](https://github.com/mustache/spec) v1.4.3.
+
+## CI Status Matrix
+
+| Platform | Compiler | Versions | Build Types | Sanitizers | Status |
+|----------|----------|----------|-------------|------------|--------|
+| **Linux** | GCC | 10, 11, 12, 13, 14, 15†, 16† | Debug, Release | ASan, UBSan, TSan | [![Linux GCC](https://github.com/scc-tw/bustache/workflows/CI/badge.svg?event=push)](https://github.com/scc-tw/bustache/actions) |
+| **Linux** | Clang | 15, 16, 17, 18, 19, 20†, 21†, 22† | Debug, Release | Basic | [![Linux Clang](https://github.com/scc-tw/bustache/workflows/CI/badge.svg?event=push)](https://github.com/scc-tw/bustache/actions) |
+| **macOS** | Apple Clang | Xcode 15.2, 15.4 | Debug, Release | ASan, UBSan | [![macOS](https://github.com/scc-tw/bustache/workflows/CI/badge.svg?event=push)](https://github.com/scc-tw/bustache/actions) |
+| **Windows** | MSVC 2022 | VS 17 2022 | Debug, Release | ASan | [![Windows](https://github.com/scc-tw/bustache/workflows/CI/badge.svg?event=push)](https://github.com/scc-tw/bustache/actions) |
+
+### Special Configurations
+| Configuration | Platform | Compiler | Purpose | Status |
+|---------------|----------|----------|---------|--------|
+| **Header-only** | Ubuntu 22.04 | GCC | Test header-only mode | [![Special Configs](https://github.com/scc-tw/bustache/workflows/CI/badge.svg?event=push)](https://github.com/scc-tw/bustache/actions) |
+| **fmt Library** | Ubuntu 22.04 | Clang 15 | Test with external fmt | [![Special Configs](https://github.com/scc-tw/bustache/workflows/CI/badge.svg?event=push)](https://github.com/scc-tw/bustache/actions) |
+| **Coverage** | Ubuntu 22.04 | GCC | Code coverage analysis | [![codecov](https://codecov.io/gh/scc-tw/bustache/branch/master/graph/badge.svg)](https://codecov.io/gh/scc-tw/bustache) |
+| **Documentation** | Ubuntu 22.04 | GCC | Docs & Examples | [![Docs](https://github.com/scc-tw/bustache/workflows/CI/badge.svg?event=push)](https://github.com/scc-tw/bustache/actions) |
+
+**Legend:**
+- † = Experimental versions (allowed to fail)
+- **ASan** = AddressSanitizer, **UBSan** = UndefinedBehaviorSanitizer, **TSan** = ThreadSanitizer
+- All builds test both **library** and **header-only** modes
+- Coverage includes **source files only** (excludes tests, dependencies, system headers)
+
+**CI Scale:** ~80 total jobs across 4 platforms, 15+ compiler versions, multiple build types and sanitizers
 
 ### Compiler Requirements
 * **C++20** *(required)*: GCC 10+, Clang 10+, MSVC 2019 16.10+ (19.29+)

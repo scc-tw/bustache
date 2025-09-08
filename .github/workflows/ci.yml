@@ -238,7 +238,21 @@ jobs:
       - name: Install dependencies
         run: |
           # Install ninja and fmt via Homebrew (cmake is pre-installed on GitHub Actions macOS runners)
-          brew install ninja fmt
+          # Check and install only if not already present to reduce CI noise
+          if ! brew list ninja &>/dev/null; then
+            echo "Installing ninja..."
+            brew install ninja
+          else
+            echo "ninja is already installed: $(ninja --version)"
+          fi
+          
+          if ! brew list fmt &>/dev/null; then
+            echo "Installing fmt..."
+            brew install fmt
+          else
+            echo "fmt is already installed"
+          fi
+          
           # Verify cmake and ninja are available
           echo "cmake version: $(cmake --version)"
           echo "ninja version: $(ninja --version)"
@@ -396,12 +410,10 @@ jobs:
           lcov --remove coverage.info '/usr/*' '*/test/*' '*/build/_deps/*' --output-file coverage.info
           lcov --list coverage.info
 
-      - name: Upload Coverage
-        if: matrix.coverage
-        uses: codecov/codecov-action@v3
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
         with:
-          file: build/coverage.info
-          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   # =============================================================================
   # Documentation and Examples
