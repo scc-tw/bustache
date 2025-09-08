@@ -282,6 +282,23 @@ public:
 
 You can also use `what()` for a descriptive text.
 
+## Known Issues
+
+### Recursion Protection <!-- TODO: Add recursion protection for dynamic partials -->
+Currently, the library does not have recursion protection for dynamic partials. Self-referencing or mutually recursive dynamic partials will cause stack overflow. For example:
+
+```mustache
+{{!-- Self-referencing partial --}}
+{{>*partial_name}}
+```
+
+Where `partial_name` resolves to a partial that contains `{{>*partial_name}}`, or mutually recursive partials like:
+- Partial A contains `{{>*next}}`  
+- Partial B contains `{{>*prev}}`
+- Data provides `next: "B"` and `prev: "A"`
+
+**Workaround**: Ensure your dynamic partials do not create recursive references.
+
 ## Performance
 Compare with 2 other libs - [mstch](https://github.com/no1msd/mstch/tree/0fde1cf94c26ede7fa267f4b64c0efe5da81a77a) and [Kainjow.Mustache](https://github.com/kainjow/Mustache/tree/a7eebc9bec92676c1931eddfff7637d7e819f2d2).
 See [benchmark.cpp](test/benchmark.cpp). 

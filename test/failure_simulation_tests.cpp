@@ -67,7 +67,7 @@ TEST_CASE("failure_simulation_circular_partials", "[failure]")
         
         object data{{"value", "test"}};
         
-        auto context = [&partials](std::string_view name) -> std::optional<std::reference_wrapper<format const>> {
+        auto _ = [&partials](std::string_view name) -> std::optional<std::reference_wrapper<format const>> {
             auto it = partials.find(std::string(name));
             return it != partials.end() ? std::optional{std::ref(it->second)} : std::nullopt;
         };
@@ -90,7 +90,7 @@ TEST_CASE("failure_simulation_circular_partials", "[failure]")
         
         object data;
         
-        auto context = [&partials](std::string_view name) -> std::optional<std::reference_wrapper<format const>> {
+        auto _ = [&partials](std::string_view name) -> std::optional<std::reference_wrapper<format const>> {
             auto it = partials.find(std::string(name));
             return it != partials.end() ? std::optional{std::ref(it->second)} : std::nullopt;
         };
@@ -116,7 +116,7 @@ TEST_CASE("failure_simulation_circular_partials", "[failure]")
         
         object data;
         
-        auto context = [&partials](std::string_view name) -> std::optional<std::reference_wrapper<format const>> {
+        auto _ = [&partials](std::string_view name) -> std::optional<std::reference_wrapper<format const>> {
             auto it = partials.find(std::string(name));
             return it != partials.end() ? std::optional{std::ref(it->second)} : std::nullopt;
         };
@@ -247,7 +247,7 @@ TEST_CASE("failure_simulation_context_timeout", "[failure]")
         // We document this as a known limitation
         
         // Create a slow context lookup (simulated)
-        auto slow_context = [](std::string_view name) -> std::optional<std::reference_wrapper<format const>> {
+        auto slow_context = [](std::string_view) -> std::optional<std::reference_wrapper<format const>> {
             // In a real scenario, this might be a slow network call
             // or database lookup. The library doesn't support timeouts.
             std::this_thread::sleep_for(std::chrono::milliseconds(100));

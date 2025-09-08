@@ -108,14 +108,14 @@ namespace bustache::detail
             {
                 if (auto const str = get_escaped(*it))
                 {
-                    sink(std::span<const char>(last, it - last));
+                    sink(std::span<const char>(last, static_cast<std::size_t>(it - last)));
                     sink(std::span<const char>(str.data, str.size));
                     last = ++it;
                 }
                 else
                     ++it;
             }
-            sink(std::span<const char>(last, it - last));
+            sink(std::span<const char>(last, static_cast<std::size_t>(it - last)));
         }
     };
 

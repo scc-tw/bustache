@@ -18,7 +18,7 @@ value_ptr throw_on_unresolved(std::string_view key)
     throw std::runtime_error("unresolved key: " + std::string(key));
 }
 
-value_ptr banana_on_unresolved(std::string_view key)
+value_ptr banana_on_unresolved(std::string_view)
 {
     static constexpr std::string_view banana("banana");
     return &banana;

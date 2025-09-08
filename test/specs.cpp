@@ -6,9 +6,6 @@
 //////////////////////////////////////////////////////////////////////////////*/
 #include <catch2/catch_test_macros.hpp>
 #include <bustache/render/string.hpp>
-#include <unordered_map>
-#include <algorithm>
-#include <functional>
 #include "model.hpp"
 
 using namespace bustache;
@@ -720,7 +717,7 @@ TEST_CASE("lambdas")
             {
                 doc.ctx = view->ctx;
                 doc.contents.insert(doc.contents.end(), view->contents.begin(), view->contents.end());
-                doc.contents.push_back(doc.ctx.add(ast::type::var_escaped, ast::variable{"planet"}));
+                doc.contents.push_back(doc.ctx.add(ast::type::var_escaped, ast::variable{ .key = "planet"}));
                 doc.contents.insert(doc.contents.end(), view->contents.begin(), view->contents.end());
             }
             return format(std::move(doc), false);

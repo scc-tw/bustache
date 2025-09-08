@@ -163,7 +163,7 @@ TEST_CASE("custom_extensions_unresolved_handlers", "[extensions]")
         object data{{"a", object{{"b", "value"}}}};
         
         // Handler for unresolved nested paths
-        auto unresolved = [](std::string_view key) -> value_ptr {
+        auto unresolved = [](std::string_view) -> value_ptr {
             static std::string empty = "";
             return &empty;
         };

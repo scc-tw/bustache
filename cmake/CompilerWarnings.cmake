@@ -55,7 +55,6 @@ function(set_project_warnings target)
         -Wdouble-promotion
         -Wformat=2
         -Wimplicit-fallthrough
-        -Wno-unused-lambda-capture  # We use this pattern
     )
 
     set(GCC_WARNINGS

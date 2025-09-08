@@ -585,9 +585,13 @@ namespace bustache
     {
         static bool test(T self)
         {
-            return !!self;
+            if constexpr (std::is_floating_point_v<T>)
+                return self != T{0};
+            else
+                return !!self;
         }
     };
+
 
     template<String T>
     struct impl_model<T>

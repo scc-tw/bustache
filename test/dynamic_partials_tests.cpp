@@ -247,7 +247,7 @@ TEST_CASE("dynamic_partials_recursive", "[dynamic]")
         // This partial references itself through a dynamic partial
         partials["recursive"] = format("Level {{counter}} {{>*partial_name}}");
         
-        auto context = [&partials](std::string_view name) -> std::optional<std::reference_wrapper<format const>> {
+        auto _ = [&partials](std::string_view name) -> std::optional<std::reference_wrapper<format const>> {
             auto it = partials.find(std::string(name));
             return it != partials.end() ? std::optional{std::ref(it->second)} : std::nullopt;
         };
@@ -271,7 +271,7 @@ TEST_CASE("dynamic_partials_recursive", "[dynamic]")
         partials["ping"] = format("Ping {{>*next}}");
         partials["pong"] = format("Pong {{>*prev}}");
         
-        auto context = [&partials](std::string_view name) -> std::optional<std::reference_wrapper<format const>> {
+        auto _ = [&partials](std::string_view name) -> std::optional<std::reference_wrapper<format const>> {
             auto it = partials.find(std::string(name));
             return it != partials.end() ? std::optional{std::ref(it->second)} : std::nullopt;
         };

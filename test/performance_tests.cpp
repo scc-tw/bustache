@@ -10,6 +10,7 @@
 #include <sstream>
 #include <optional>
 #include <functional>
+#include <iostream>
 #include "model.hpp"
 
 using namespace bustache;
@@ -36,6 +37,8 @@ TEST_CASE("performance_template_compilation_caching", "[performance]")
         CHECK(to_string(tmpl1(data)) == "John is 30 years old and lives in NYC");
         CHECK(to_string(tmpl2(data)) == "John is 30 years old and lives in NYC");
         
+        CHECK(second_time - initial_time < std::chrono::microseconds(100));
+
         // Note: bustache doesn't cache compiled templates globally
         // Each format object independently parses the template
         CHECK(true); // Document behavior
@@ -74,8 +77,8 @@ TEST_CASE("performance_template_compilation_caching", "[performance]")
         CHECK(true); // Always pass - this test documents behavior rather than enforces it
         
         // Optional informational output (commented out for automated testing)
-        // std::cout << "Reuse time: " << reuse_time.count() << "ms, "
-        //           << "Recreate time: " << recreate_time.count() << "ms\n";
+        std::cout << "Reuse time: " << reuse_time.count() << "ms, "
+                  << "Recreate time: " << recreate_time.count() << "ms\n";
     }
 }
 
@@ -303,6 +306,8 @@ TEST_CASE("performance_partial_loading_and_caching", "[performance]")
         CHECK(!result1.empty());
         // Check length is reasonable (should have content from 100 partials)
         CHECK(result1.length() > 100);
+
+        CHECK(second_time - first_time < std::chrono::milliseconds(100));
         
         // Document that partials are looked up each time
         // No internal caching mechanism

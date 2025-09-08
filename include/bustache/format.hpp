@@ -56,13 +56,13 @@ namespace bustache
         template<class T>
         manipulator<Opts..., detail::manip_context<T>> context(T const& context_) const noexcept
         {
-            return {static_cast<Opts const&>(*this)..., context_};
+            return {static_cast<Opts const&>(*this)..., {context_}};
         }
 
         template<class T>
         manipulator<Opts..., detail::manip_escape<T>> escape(T const& escape_) const noexcept
         {
-            return {static_cast<Opts const&>(*this)..., escape_};
+            return {static_cast<Opts const&>(*this)..., {escape_}};
         }
     };
 
