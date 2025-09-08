@@ -15,6 +15,16 @@ function(add_catch_test name)
     )
     target_compile_features(${TEST_TARGET} PUBLIC cxx_std_20)
     
+    # Ensure consistent MSVC runtime library for all test targets
+    if(MSVC)
+        if(CMAKE_MSVC_RUNTIME_LIBRARY)
+            set_property(TARGET ${TEST_TARGET} PROPERTY MSVC_RUNTIME_LIBRARY ${CMAKE_MSVC_RUNTIME_LIBRARY})
+        else()
+            # Fallback to dynamic runtime if not set
+            set_property(TARGET ${TEST_TARGET} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+        endif()
+    endif()
+    
     # Apply developer settings to test targets if in developer mode
     if(BUSTACHE_DEVELOPER_MODE AND TARGET bustache_developer_settings)
         # Copy sanitizer and other developer settings to test targets
@@ -32,9 +42,22 @@ function(add_catch_test name)
             target_compile_definitions(${TEST_TARGET} PRIVATE ${DEV_COMPILE_DEFINITIONS})
         endif()
         
-        # For MSVC ASAN, ensure consistent runtime library settings
-        if(MSVC AND BUSTACHE_ENABLE_SANITIZER_ADDRESS)
-            set_property(TARGET ${TEST_TARGET} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+        # GCC 12 false positive workaround for -Warray-bounds in fmt/libstdc++ internals
+        # This affects fmt v9's bigint/dragon formatting path used in large integer/float formatting
+        if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 13)
+            target_compile_options(${TEST_TARGET} PRIVATE -Wno-error=array-bounds)
+        endif()
+        
+        # For MSVC, ensure consistent runtime library settings
+        if(MSVC)
+            # Use the same runtime library as set in the main CMakeLists.txt
+            # This prevents mixing static/dynamic CRTs which causes linker errors
+            if(CMAKE_MSVC_RUNTIME_LIBRARY)
+                set_property(TARGET ${TEST_TARGET} PROPERTY MSVC_RUNTIME_LIBRARY ${CMAKE_MSVC_RUNTIME_LIBRARY})
+            else()
+                # Fallback to dynamic runtime if not set
+                set_property(TARGET ${TEST_TARGET} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+            endif()
         endif()
     endif()
     

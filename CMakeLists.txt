@@ -31,6 +31,26 @@ include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
 # =============================================================================
+# MSVC Runtime Library Configuration (Fix for linker issues)
+# =============================================================================
+# Ensure consistent MSVC runtime library across all targets and dependencies
+# This prevents mixing static/dynamic CRTs which causes linker errors
+if(MSVC)
+    if(BUSTACHE_MSVC_STATIC_RUNTIME)
+        # Use static runtime library (MTd for Debug, MT for Release)
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+        message(STATUS "MSVC Runtime Library: Static (MT/MTd)")
+    else()
+        # Use dynamic runtime library (MDd for Debug, MD for Release) - recommended
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+        message(STATUS "MSVC Runtime Library: Dynamic (MD/MDd)")
+    endif()
+    
+    # Ensure this policy is set for consistent behavior
+    cmake_policy(SET CMP0091 NEW)
+endif()
+
+# =============================================================================
 # Project Options
 # =============================================================================
 option(BUSTACHE_BUILD_LIBRARY "Build bustache as a library (vs header-only)" ON)
@@ -43,6 +63,9 @@ option(BUSTACHE_ENABLE_CACHE "Enable compilation cache (ccache/sccache)" ON)
 
 # Developer options
 option(BUSTACHE_DEVELOPER_MODE "Enable developer mode (warnings, sanitizers, etc.)" OFF)
+
+# MSVC runtime library options
+option(BUSTACHE_MSVC_STATIC_RUNTIME "Use static MSVC runtime library (MT/MTd) instead of dynamic (MD/MDd)" OFF)
 
 # Print configuration
 message(STATUS "")
@@ -57,6 +80,9 @@ message(STATUS "Documentation:     ${BUSTACHE_ENABLE_DOCS}")
 message(STATUS "Use fmt:           ${BUSTACHE_USE_FMT}")
 message(STATUS "Installation:      ${BUSTACHE_INSTALL}")
 message(STATUS "Developer mode:    ${BUSTACHE_DEVELOPER_MODE}")
+if(MSVC)
+    message(STATUS "MSVC static runtime: ${BUSTACHE_MSVC_STATIC_RUNTIME}")
+endif()
 message(STATUS "")
 
 # =============================================================================
@@ -150,6 +176,11 @@ if(BUSTACHE_BUILD_LIBRARY)
         CXX_VISIBILITY_PRESET hidden
         VISIBILITY_INLINES_HIDDEN ON
     )
+    
+    # Ensure consistent MSVC runtime library
+    if(MSVC AND CMAKE_MSVC_RUNTIME_LIBRARY)
+        set_property(TARGET bustache PROPERTY MSVC_RUNTIME_LIBRARY ${CMAKE_MSVC_RUNTIME_LIBRARY})
+    endif()
 
     # Library configuration
     target_compile_features(bustache PUBLIC cxx_std_20)

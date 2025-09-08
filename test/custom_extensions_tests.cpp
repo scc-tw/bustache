@@ -106,8 +106,8 @@ TEST_CASE("custom_extensions_escape_handlers", "[extensions]")
         
         // Define a custom URL escape handler
         auto url_escape = [](auto const& sink) {
-            return [&sink](std::span<const char> data) {
-                for (char c : data) {
+            return [&sink](std::span<const char> chunk) {
+                for (char c : chunk) {
                     if (c == ' ') {
                         sink(std::span<const char>("%20", 3));
                     } else if (c == '&') {

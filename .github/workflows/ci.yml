@@ -293,7 +293,7 @@ jobs:
   # Windows MSVC Builds
   # =============================================================================
   windows-msvc:
-    name: Windows MSVC ${{ matrix.vs-version }} (${{ matrix.build-type }}${{ matrix.sanitizer && ', ASAN' || '' }})
+    name: Windows MSVC ${{ matrix.vs-version }} (${{ matrix.build-type }}${{ matrix.sanitizer && ', ASAN' || '' }}${{ matrix.static_runtime && ', Static RT' || '' }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -312,6 +312,12 @@ jobs:
             vs-version: 2022
             build-type: Debug
             sanitizer: true
+          # Test with static runtime library
+          - os: windows-2022
+            vs-version: 2022
+            build-type: Debug
+            sanitizer: false
+            static_runtime: true
 
     steps:
       - name: Checkout
@@ -328,7 +334,8 @@ jobs:
             -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} `
             -DBUSTACHE_ENABLE_TESTING=ON `
             -DBUSTACHE_DEVELOPER_MODE=ON `
-            ${{ matrix.sanitizer && '-DBUSTACHE_ENABLE_SANITIZER_ADDRESS=ON' || '' }}
+            ${{ matrix.sanitizer && '-DBUSTACHE_ENABLE_SANITIZER_ADDRESS=ON' || '' }} `
+            ${{ matrix.static_runtime && '-DBUSTACHE_MSVC_STATIC_RUNTIME=ON' || '' }}
 
       - name: Build
         run: cmake --build build --config ${{ matrix.build-type }} --parallel
