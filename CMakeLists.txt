@@ -95,8 +95,20 @@ endif()
 
 # fmt library (optional)
 if(BUSTACHE_USE_FMT)
-    find_package(fmt REQUIRED)
-    message(STATUS "Using fmt library version ${fmt_VERSION}")
+    find_package(fmt CONFIG QUIET)
+    if(NOT fmt_FOUND)
+        message(STATUS "fmt not found via find_package, using FetchContent")
+        include(FetchContent)
+        FetchContent_Declare(
+            fmt
+            GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+            GIT_TAG 11.2.0
+            GIT_SHALLOW TRUE
+        )
+        FetchContent_MakeAvailable(fmt)
+    else()
+        message(STATUS "Using system fmt library version ${fmt_VERSION}")
+    endif()
 endif()
 
 # =============================================================================

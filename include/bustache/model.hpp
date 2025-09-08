@@ -307,6 +307,7 @@ namespace bustache::detail
     struct output_buffer
     {
         using value_type = char;
+        using iterator = char*;
 
         explicit output_buffer(output_handler os_handler) : os(os_handler) {}
 
@@ -319,6 +320,30 @@ namespace bustache::detail
             }
             buf[count++] = c;
         }
+
+        template<typename InputIt>
+        void append(InputIt begin, InputIt end)
+        {
+            while (begin != end)
+            {
+                push_back(*begin);
+                ++begin;
+            }
+        }
+
+        template<typename InputIt>
+        iterator insert(iterator pos, InputIt begin, InputIt end)
+        {
+            (void)pos; // unused, we always append at end
+            while (begin != end)
+            {
+                push_back(*begin);
+                ++begin;
+            }
+            return buf + count;
+        }
+
+        iterator end() { return buf + count; }
 
         void flush() { os(std::span<const char>(buf, count)); }
 

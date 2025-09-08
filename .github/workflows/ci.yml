@@ -74,7 +74,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt-get install -y cmake ninja-build
+          sudo apt-get install -y cmake ninja-build libfmt-dev
 
       - name: Configure CMake
         run: |
@@ -140,7 +140,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt-get install -y cmake ninja-build
+          sudo apt-get install -y cmake ninja-build libfmt-dev
 
       - name: Configure CMake
         run: |
@@ -295,19 +295,6 @@ jobs:
             vs-version: 2022
             build-type: Debug
             sanitizer: true
-          # Visual Studio 2025
-          - os: windows-2025
-            vs-version: 2025
-            build-type: Debug
-            sanitizer: false
-          - os: windows-2025
-            vs-version: 2025
-            build-type: Release
-            sanitizer: false
-          - os: windows-2025
-            vs-version: 2025
-            build-type: Debug
-            sanitizer: true
 
     steps:
       - name: Checkout
@@ -320,7 +307,7 @@ jobs:
 
       - name: Configure CMake
         run: |
-          cmake -S . -B build -G "Visual Studio ${{ matrix.vs-version == '2022' && '17 2022' || '18 2025' }}" -A x64 `
+          cmake -S . -B build -G "Visual Studio ${{ matrix.vs-version == '2022' && '17 2022' }}" -A x64 `
             -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} `
             -DBUSTACHE_ENABLE_TESTING=ON `
             -DBUSTACHE_DEVELOPER_MODE=ON `

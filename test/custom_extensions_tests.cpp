@@ -94,7 +94,7 @@ TEST_CASE("custom_extensions_filter_sections", "[extensions]")
         auto result = to_string("{{?items}}Numbers: {{#items}}{{.}} {{/items}}{{/items}}"_fmt(data));
         
         // Check if it renders
-        CHECK(result.length() >= 0); // Will either work or be empty
+        CHECK(result.length() > 0);
     }
 }
 
