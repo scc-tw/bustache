@@ -19,13 +19,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        gcc-version: [9, 10, 11, 12, 13, 14, 15, 16]
+        gcc-version: [10, 11, 12, 13, 14, 15, 16]
         build-type: [Debug, Release]
         sanitizer: ['', 'address', 'undefined', 'thread']
         exclude:
           # Don't run all sanitizers on all versions to reduce CI time
-          - gcc-version: 9
-            sanitizer: 'thread'
           - gcc-version: 10
             sanitizer: 'thread'
           - gcc-version: 12
@@ -36,9 +34,6 @@ jobs:
           - build-type: Release
             sanitizer: 'thread'
           # Reduce testing on newer/older GCC versions (keep essential tests only)
-          - gcc-version: 9
-            build-type: Release
-            sanitizer: 'undefined'
           - gcc-version: 10
             build-type: Release
             sanitizer: 'undefined'
