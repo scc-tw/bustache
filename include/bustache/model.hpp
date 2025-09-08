@@ -592,6 +592,14 @@ namespace bustache
         }
     };
 
+    template<Arithmetic T>
+    struct impl_print<T>
+    {
+        static void print(T const& self, output_handler os, char const* spec)
+        {
+            detail::print_fmt(self, os, spec);
+        }
+    };
 
     template<String T>
     struct impl_model<T>
@@ -617,7 +625,7 @@ namespace bustache
     template<String T>
     struct impl_print<T> : impl_print<std::string_view> {};
 
-    template<Formattable T> requires (!String<T>)
+    template<Formattable T> requires (!String<T> && !Arithmetic<T>)
     struct impl_print<T>
     {
         static void print(T const& self, output_handler os, char const* spec)

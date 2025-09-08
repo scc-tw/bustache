@@ -12,34 +12,49 @@ jobs:
   # =============================================================================
   linux-gcc:
     name: Linux GCC ${{ matrix.gcc-version }} (${{ matrix.build-type }}${{ matrix.sanitizer && ', ' || '' }}${{ matrix.sanitizer }})
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
+    continue-on-error: ${{ matrix.gcc-version == 15 }}
     strategy:
       fail-fast: false
       matrix:
-        gcc-version: [10, 11, 12, 13]
+        gcc-version: [12, 13, 14, 15]
         build-type: [Debug, Release]
         sanitizer: ['', 'address', 'undefined', 'thread']
         exclude:
           # Don't run all sanitizers on all versions to reduce CI time
-          - gcc-version: 10
+          - gcc-version: 12
             sanitizer: 'thread'
-          - gcc-version: 11  
+          - gcc-version: 14  
             sanitizer: 'thread'
           # Thread sanitizer with Release builds can be flaky
           - build-type: Release
             sanitizer: 'thread'
-          # Reduce GCC 13 testing since it requires PPA (keep essential tests only)
-          - gcc-version: 13
-            sanitizer: 'thread'
-          - gcc-version: 13
+          # Reduce testing on newer GCC versions (keep essential tests only)
+          - gcc-version: 14
             build-type: Release
             sanitizer: 'undefined'
+          - gcc-version: 15
+            sanitizer: 'thread'
+          - gcc-version: 15
+            build-type: Release
+            sanitizer: 'undefined'
+          # GCC 15 is experimental - allow it to fail and only test essential configurations
+          - gcc-version: 15
+            sanitizer: 'address'
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install GCC ${{ matrix.gcc-version }}
+      - name: Install GCC ${{ matrix.gcc-version }} (via setup-gcc)
+        if: matrix.gcc-version == 15
+        uses: egor-tensin/setup-gcc@v1
+        with:
+          version: ${{ matrix.gcc-version }}
+          platform: x64
+
+      - name: Install GCC ${{ matrix.gcc-version }} (via apt)
+        if: matrix.gcc-version != 15
         run: |
           sudo apt-get update
           # Add toolchain PPA for newer GCC versions
@@ -50,6 +65,12 @@ jobs:
           sudo apt-get install -y gcc-${{ matrix.gcc-version }} g++-${{ matrix.gcc-version }}
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-${{ matrix.gcc-version }} 100
           sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-${{ matrix.gcc-version }} 100
+
+      - name: Verify GCC Installation
+        run: |
+          gcc --version
+          g++ --version
+          echo "GCC version verification completed"
 
       - name: Install dependencies
         run: |
