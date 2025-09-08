@@ -33,7 +33,19 @@ set(CATCH_INSTALL_DOCS OFF CACHE BOOL "")
 set(CATCH_INSTALL_EXTRAS OFF CACHE BOOL "")
 set(BUILD_TESTING OFF CACHE BOOL "")
 
+# Ensure Catch2 is built with PIC to be compatible with PIE executables
+set(CMAKE_POSITION_INDEPENDENT_CODE_BACKUP ${CMAKE_POSITION_INDEPENDENT_CODE})
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 FetchContent_MakeAvailable(Catch2)
+
+# After Catch2 is available, ensure all Catch2 targets have PIC enabled for PIE compatibility
+foreach(target IN ITEMS Catch2 Catch2WithMain)
+    if(TARGET ${target})
+        set_property(TARGET ${target} PROPERTY POSITION_INDEPENDENT_CODE ON)
+        message(STATUS "Set POSITION_INDEPENDENT_CODE=ON for Catch2 target ${target}")
+    endif()
+endforeach()
 
 # After Catch2 is available, explicitly set the runtime library for all Catch2 targets
 # This is a belt-and-suspenders approach to ensure consistency
@@ -57,7 +69,35 @@ if(MSVC AND CMAKE_MSVC_RUNTIME_LIBRARY)
     endforeach()
 endif()
 
-# Restore runtime library setting after fetching Catch2 (if it was backed up)
+# CRITICAL: Apply AddressSanitizer settings to Catch2 targets to prevent annotation mismatches
+# When ASAN is enabled, it adds annotations to std::string and std::vector that must be consistent
+# across all linked components to avoid LNK2038 errors on MSVC
+if(MSVC AND BUSTACHE_ENABLE_SANITIZER_ADDRESS)
+    message(STATUS "Applying AddressSanitizer settings to Catch2 targets to prevent annotation mismatches")
+    
+    # Apply ASAN compile options to all Catch2 targets
+    foreach(target IN ITEMS Catch2 Catch2WithMain)
+        if(TARGET ${target})
+            target_compile_options(${target} PRIVATE /fsanitize=address)
+            message(STATUS "Applied AddressSanitizer to Catch2 target ${target}")
+        endif()
+    endforeach()
+    
+    # Also apply to any other Catch2 targets that might exist
+    get_property(CATCH2_TARGETS DIRECTORY "${catch2_SOURCE_DIR}" PROPERTY BUILDSYSTEM_TARGETS)
+    foreach(target IN LISTS CATCH2_TARGETS)
+        if(TARGET ${target})
+            target_compile_options(${target} PRIVATE /fsanitize=address)
+            message(STATUS "Applied AddressSanitizer to Catch2 target ${target}")
+        endif()
+    endforeach()
+endif()
+
+# Restore settings after fetching Catch2 (if they were backed up)
 if(MSVC AND CMAKE_MSVC_RUNTIME_LIBRARY_BACKUP)
     set(CMAKE_MSVC_RUNTIME_LIBRARY ${CMAKE_MSVC_RUNTIME_LIBRARY_BACKUP})
+endif()
+
+if(CMAKE_POSITION_INDEPENDENT_CODE_BACKUP)
+    set(CMAKE_POSITION_INDEPENDENT_CODE ${CMAKE_POSITION_INDEPENDENT_CODE_BACKUP})
 endif()

@@ -64,8 +64,17 @@ function(enable_sanitizers target)
         
         if(BUSTACHE_ENABLE_SANITIZER_ADDRESS)
             target_compile_options(${target} INTERFACE /fsanitize=address)
-            # MSVC requires special runtime library for ASAN
-            set_property(TARGET ${target} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+            
+            # MSVC AddressSanitizer runtime library configuration
+            # Note: ASAN on MSVC requires dynamic runtime library (MD/MDd) for proper operation
+            # Static runtime (MT/MTd) can cause issues with ASAN's memory tracking
+            if(NOT CMAKE_MSVC_RUNTIME_LIBRARY OR CMAKE_MSVC_RUNTIME_LIBRARY MATCHES "MultiThreaded$")
+                message(STATUS "AddressSanitizer: Setting dynamic runtime library (MD/MDd) for optimal ASAN compatibility")
+                set_property(TARGET ${target} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+            else()
+                # Use the globally configured runtime library
+                set_property(TARGET ${target} PROPERTY MSVC_RUNTIME_LIBRARY ${CMAKE_MSVC_RUNTIME_LIBRARY})
+            endif()
         endif()
     endif()
 endfunction()

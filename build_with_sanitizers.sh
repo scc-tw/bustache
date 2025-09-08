@@ -161,10 +161,16 @@ validate_sanitizer() {
 # Function to set sanitizer environment variables
 set_sanitizer_env() {
     local sanitizer="$1"
+    local os="$2"
     
     case "$sanitizer" in
         address)
-            export ASAN_OPTIONS="detect_leaks=1:abort_on_error=1:check_initialization_order=1:strict_init_order=1"
+            # Disable leak detection on macOS as it's not supported
+            if [ "$os" = "macos" ]; then
+                export ASAN_OPTIONS="detect_leaks=0:abort_on_error=1:check_initialization_order=1:strict_init_order=1"
+            else
+                export ASAN_OPTIONS="detect_leaks=1:abort_on_error=1:check_initialization_order=1:strict_init_order=1"
+            fi
             print_info "Set ASAN_OPTIONS: $ASAN_OPTIONS"
             ;;
         undefined)
@@ -289,7 +295,7 @@ main() {
     
     # Set sanitizer environment
     if [ "$SANITIZER" != "none" ]; then
-        set_sanitizer_env "$SANITIZER"
+        set_sanitizer_env "$SANITIZER" "$OS"
     fi
     
     # Create build directory

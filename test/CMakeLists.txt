@@ -20,6 +20,24 @@ if(MSVC AND CMAKE_MSVC_RUNTIME_LIBRARY)
     endforeach()
 endif()
 
+# This ensures Catch2 has the same ASAN annotations as test targets to prevent LNK2038 errors
+if(MSVC AND BUSTACHE_ENABLE_SANITIZER_ADDRESS)
+    message(STATUS "Applying AddressSanitizer to Catch2 targets (test-level fallback)")
+    
+    foreach(target IN ITEMS Catch2 Catch2WithMain)
+        if(TARGET ${target})
+            # Check if ASAN is already applied
+            get_target_property(current_options ${target} COMPILE_OPTIONS)
+            if(NOT current_options OR NOT "/fsanitize=address" IN_LIST current_options)
+                target_compile_options(${target} PRIVATE /fsanitize=address)
+                message(STATUS "Applied AddressSanitizer to ${target} (fallback)")
+            else()
+                message(STATUS "AddressSanitizer already applied to ${target}")
+            endif()
+        endif()
+    endforeach()
+endif()
+
 function(add_catch_test name)
     set(TEST_TARGET test_${name})
     add_executable(${TEST_TARGET}
@@ -65,6 +83,13 @@ function(add_catch_test name)
         # This affects fmt v9's bigint/dragon formatting path used in large integer/float formatting
         if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 13)
             target_compile_options(${TEST_TARGET} PRIVATE -Wno-error=array-bounds)
+        endif()
+        
+        # GCC 13 false positive workaround for -Wmaybe-uninitialized in std::function move constructor
+        # This affects std::variant containing std::function objects during move construction
+        # See: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=109703
+        if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 13)
+            target_compile_options(${TEST_TARGET} PRIVATE -Wno-error=maybe-uninitialized)
         endif()
         
         # For MSVC, ensure consistent runtime library settings

@@ -165,6 +165,12 @@ target_include_directories(bustache_headers
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
+# Ensure header-only targets also get proper PIE/PIC configuration
+# This is important for executables linking against the header-only interface
+set_target_properties(bustache_headers PROPERTIES
+    INTERFACE_POSITION_INDEPENDENT_CODE ON
+)
+
 if(BUSTACHE_USE_FMT)
     target_link_libraries(bustache_headers INTERFACE fmt::fmt)
     target_compile_definitions(bustache_headers INTERFACE BUSTACHE_USE_FMT)
