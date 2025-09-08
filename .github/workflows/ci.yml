@@ -335,7 +335,7 @@ jobs:
           # Header-only mode
           - name: "Header-only (Ubuntu GCC)"
             os: ubuntu-22.04
-            compiler: gcc-12
+            compiler: gcc
             cmake_flags: "-DBUSTACHE_BUILD_LIBRARY=OFF -DBUSTACHE_ENABLE_TESTING=ON"
           
           # With fmt library
@@ -348,7 +348,7 @@ jobs:
           # Coverage build (GCC only)
           - name: "Coverage (Ubuntu GCC)"
             os: ubuntu-22.04
-            compiler: gcc-12
+            compiler: gcc
             cmake_flags: "-DBUSTACHE_ENABLE_TESTING=ON -DBUSTACHE_DEVELOPER_MODE=ON -DBUSTACHE_ENABLE_COVERAGE=ON"
             coverage: true
 
@@ -359,15 +359,23 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake ninja-build ${{ matrix.compiler }}
+          sudo apt-get install -y cmake ninja-build build-essential lcov
           ${{ matrix.install_fmt && 'sudo apt-get install -y libfmt-dev' || '' }}
           ${{ matrix.coverage && 'sudo apt-get install -y lcov' || '' }}
+          
+      - name: Setup Coverage Tools
+        if: matrix.coverage
+        run: |
+          # Verify GCC and gcov versions are aligned
+          echo "GCC version: $(gcc --version | head -1)"
+          echo "gcov version: $(gcov --version | head -1)"
+          # They should be the same version since they come from the same package
 
       - name: Configure CMake
         run: |
           cmake -S . -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Debug \
-            -DCMAKE_CXX_COMPILER=${{ matrix.compiler }} \
+            -DCMAKE_CXX_COMPILER=g++ \
             ${{ matrix.cmake_flags }}
 
       - name: Build
@@ -382,6 +390,8 @@ jobs:
         if: matrix.coverage
         run: |
           cd build
+          echo "Generating coverage with gcov version: $(gcov --version | head -1)"
+          # Generate coverage report using default gcov (aligned with gcc)
           lcov --directory . --capture --output-file coverage.info
           lcov --remove coverage.info '/usr/*' '*/test/*' '*/build/_deps/*' --output-file coverage.info
           lcov --list coverage.info
@@ -406,13 +416,13 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake ninja-build gcc-12 g++-12 doxygen
+          sudo apt-get install -y cmake ninja-build gcc g++ doxygen
 
       - name: Configure CMake
         run: |
           cmake -S . -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_CXX_COMPILER=g++-12 \
+            -DCMAKE_CXX_COMPILER=g++ \
             -DBUSTACHE_ENABLE_EXAMPLES=ON \
             -DBUSTACHE_ENABLE_DOCS=ON
 
