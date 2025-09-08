@@ -153,6 +153,11 @@ target_include_directories(bustache_headers
 if(BUSTACHE_USE_FMT)
     target_link_libraries(bustache_headers INTERFACE fmt::fmt)
     target_compile_definitions(bustache_headers INTERFACE BUSTACHE_USE_FMT)
+    # Treat fmt headers as system headers to avoid warnings in third-party code
+    get_target_property(fmt_include_dirs fmt::fmt INTERFACE_INCLUDE_DIRECTORIES)
+    if(fmt_include_dirs)
+        target_include_directories(bustache_headers SYSTEM INTERFACE ${fmt_include_dirs})
+    endif()
 endif()
 
 # =============================================================================
@@ -197,6 +202,11 @@ if(BUSTACHE_BUILD_LIBRARY)
     if(BUSTACHE_USE_FMT)
         target_link_libraries(bustache PUBLIC fmt::fmt)
         target_compile_definitions(bustache PUBLIC BUSTACHE_USE_FMT)
+        # Treat fmt headers as system headers to avoid warnings in third-party code
+        get_target_property(fmt_include_dirs fmt::fmt INTERFACE_INCLUDE_DIRECTORIES)
+        if(fmt_include_dirs)
+            target_include_directories(bustache SYSTEM PUBLIC ${fmt_include_dirs})
+        endif()
     endif()
 
     # Export symbols for shared library

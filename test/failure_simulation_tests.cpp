@@ -67,7 +67,7 @@ TEST_CASE("failure_simulation_circular_partials", "[failure]")
         
         object data{{"value", "test"}};
         
-        auto _ = [&partials](std::string_view name) -> std::optional<std::reference_wrapper<format const>> {
+        [[maybe_unused]] auto _ = [&partials](std::string_view name) -> std::optional<std::reference_wrapper<format const>> {
             auto it = partials.find(std::string(name));
             return it != partials.end() ? std::optional{std::ref(it->second)} : std::nullopt;
         };
@@ -90,7 +90,7 @@ TEST_CASE("failure_simulation_circular_partials", "[failure]")
         
         object data;
         
-        auto _ = [&partials](std::string_view name) -> std::optional<std::reference_wrapper<format const>> {
+        [[maybe_unused]] auto _ = [&partials](std::string_view name) -> std::optional<std::reference_wrapper<format const>> {
             auto it = partials.find(std::string(name));
             return it != partials.end() ? std::optional{std::ref(it->second)} : std::nullopt;
         };
@@ -116,7 +116,7 @@ TEST_CASE("failure_simulation_circular_partials", "[failure]")
         
         object data;
         
-        auto _ = [&partials](std::string_view name) -> std::optional<std::reference_wrapper<format const>> {
+        [[maybe_unused]] auto _ = [&partials](std::string_view name) -> std::optional<std::reference_wrapper<format const>> {
             auto it = partials.find(std::string(name));
             return it != partials.end() ? std::optional{std::ref(it->second)} : std::nullopt;
         };

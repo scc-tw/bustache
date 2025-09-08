@@ -147,7 +147,7 @@ namespace bustache
 
     inline namespace literals
     {
-        inline format operator"" _fmt(char const* str, std::size_t n)
+        inline format operator""_fmt(char const* str, std::size_t n)
         {
             return format(std::string_view(str, n));
         }

@@ -166,6 +166,7 @@ jobs:
             -DCMAKE_CXX_COMPILER=clang++ \
             -DBUSTACHE_ENABLE_TESTING=ON \
             -DBUSTACHE_DEVELOPER_MODE=ON \
+            -DBUSTACHE_USE_FMT=ON \
             ${{ matrix.sanitizer == 'address' && '-DBUSTACHE_ENABLE_SANITIZER_ADDRESS=ON' || '' }} \
             ${{ matrix.sanitizer == 'undefined' && '-DBUSTACHE_ENABLE_SANITIZER_UNDEFINED=ON' || '' }} \
             ${{ matrix.sanitizer == 'memory' && '-DBUSTACHE_ENABLE_SANITIZER_MEMORY=ON' || '' }} \
