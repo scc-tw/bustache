@@ -13,6 +13,7 @@
 #include <chrono>
 #include <atomic>
 #include <vector>
+#include <memory>
 #include "model.hpp"
 
 using namespace bustache;
@@ -152,11 +153,13 @@ TEST_CASE("failure_simulation_memory_stress", "[failure]")
     {
         // Create a deeply nested structure
         object deepest{{"value", "found"}};
+        std::vector<std::unique_ptr<object>> allocated_objects;
         object* current = &deepest;
         
         for (int i = 0; i < 100; ++i) {
-            object* next = new object{{"level" + std::to_string(i), *current}};
-            current = next;
+            auto next = std::make_unique<object>(object{{"level" + std::to_string(i), *current}});
+            current = next.get();
+            allocated_objects.push_back(std::move(next));
         }
         
         // Build the access path
@@ -169,8 +172,7 @@ TEST_CASE("failure_simulation_memory_stress", "[failure]")
         auto result = to_string(format(path)(*current));
         CHECK(result == "found");
         
-        // Clean up
-        delete current;
+        // Clean up happens automatically when allocated_objects goes out of scope
     }
 }
 

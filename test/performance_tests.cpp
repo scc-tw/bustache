@@ -233,9 +233,13 @@ TEST_CASE("performance_large_array_iteration", "[performance]")
         for (int i = 0; i < 100; ++i) {
             array inner;
             for (int j = 0; j < 100; ++j) {
-                inner.push_back(object{{"val", i * 100 + j}});
+                // Explicitly construct value to avoid GCC 13 variant move constructor warning
+                value val_value{i * 100 + j};
+                inner.push_back(object{{"val", std::move(val_value)}});
             }
-            outer.push_back(object{{"row", i}, {"cols", inner}});
+            value row_value{i};
+            value cols_value{std::move(inner)};
+            outer.push_back(object{{"row", std::move(row_value)}, {"cols", std::move(cols_value)}});
         }
         
         object data{{"rows", outer}};

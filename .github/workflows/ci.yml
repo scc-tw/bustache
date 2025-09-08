@@ -107,18 +107,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        clang-version: [14, 15, 16, 17, 18, 19, 20, 21, 22]
+        clang-version: [15, 16, 17, 18, 19, 20, 21, 22]
         build-type: [Debug, Release]
         sanitizer: ['', 'address', 'undefined', 'memory', 'thread']
         exclude:
           # Memory sanitizer only on newer Clang versions
-          - clang-version: 14
-            sanitizer: 'memory'
           - clang-version: 15
             sanitizer: 'memory'
           # Don't run all sanitizers on all versions to reduce CI time
-          - clang-version: 14
-            sanitizer: 'thread'
           - clang-version: 15
             sanitizer: 'thread'
           - clang-version: 16
