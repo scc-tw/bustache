@@ -62,18 +62,30 @@ message(STATUS "")
 # =============================================================================
 # Dependencies
 # =============================================================================
-# Check for C++20 compiler support
+# Check for C++20 compiler support and auto-enable fmt for older compilers
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 10.0)
         message(FATAL_ERROR "GCC 10+ required for C++20 support")
+    elseif(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 13.0)
+        # GCC < 13 doesn't have full std::format support
+        set(BUSTACHE_USE_FMT ON CACHE BOOL "Force fmt for GCC < 13" FORCE)
+        message(STATUS "GCC ${CMAKE_CXX_COMPILER_VERSION} detected: automatically enabling fmt library (std::format not fully supported)")
     endif()
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 10.0)
         message(FATAL_ERROR "Clang 10+ required for C++20 support")
+    elseif(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 17.0)
+        # Clang < 17 doesn't have full std::format support
+        set(BUSTACHE_USE_FMT ON CACHE BOOL "Force fmt for Clang < 17" FORCE)
+        message(STATUS "Clang ${CMAKE_CXX_COMPILER_VERSION} detected: automatically enabling fmt library (std::format not fully supported)")
     endif()
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
     if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 12.0)
         message(FATAL_ERROR "Apple Clang 12+ (Xcode 12+) required for C++20 support")
+    else()
+        # Apple Clang doesn't have std::format support yet, always use fmt
+        set(BUSTACHE_USE_FMT ON CACHE BOOL "Force fmt for Apple Clang (std::format not supported)" FORCE)
+        message(STATUS "Apple Clang ${CMAKE_CXX_COMPILER_VERSION} detected: automatically enabling fmt library (std::format not supported)")
     endif()
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.29)
@@ -83,7 +95,7 @@ endif()
 
 # fmt library (optional)
 if(BUSTACHE_USE_FMT)
-    find_package(fmt 8.0 REQUIRED)
+    find_package(fmt REQUIRED)
     message(STATUS "Using fmt library version ${fmt_VERSION}")
 endif()
 
@@ -213,7 +225,7 @@ endif()
 # Examples
 # =============================================================================
 if(BUSTACHE_ENABLE_EXAMPLES)
-    add_subdirectory(examples)
+    add_subdirectory(example)
 endif()
 
 # =============================================================================

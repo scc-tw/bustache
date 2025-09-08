@@ -717,7 +717,7 @@ TEST_CASE("lambdas")
             {
                 doc.ctx = view->ctx;
                 doc.contents.insert(doc.contents.end(), view->contents.begin(), view->contents.end());
-                doc.contents.push_back(doc.ctx.add(ast::type::var_escaped, ast::variable{ .key = "planet"}));
+                doc.contents.push_back(doc.ctx.add(ast::type::var_escaped, ast::variable{ .key = "planet", .split = {} }));
                 doc.contents.insert(doc.contents.end(), view->contents.begin(), view->contents.end());
             }
             return format(std::move(doc), false);

@@ -28,7 +28,7 @@ struct Range
 
 struct RangeRange : Range
 {
-    RangeRange(int a, int b) noexcept : Range{a, b} {}
+    RangeRange(int start, int end) noexcept : Range{start, end} {}
 };
 
 template<>

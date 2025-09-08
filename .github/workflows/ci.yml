@@ -243,8 +243,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          # Install ninja via Homebrew (cmake is pre-installed on GitHub Actions macOS runners)
-          brew install ninja
+          # Install ninja and fmt via Homebrew (cmake is pre-installed on GitHub Actions macOS runners)
+          brew install ninja fmt
           # Verify cmake and ninja are available
           echo "cmake version: $(cmake --version)"
           echo "ninja version: $(ninja --version)"
@@ -256,6 +256,7 @@ jobs:
             -DCMAKE_CXX_COMPILER=clang++ \
             -DBUSTACHE_ENABLE_TESTING=ON \
             -DBUSTACHE_DEVELOPER_MODE=ON \
+            -DBUSTACHE_USE_FMT=ON \
             ${{ matrix.sanitizer == 'address' && '-DBUSTACHE_ENABLE_SANITIZER_ADDRESS=ON' || '' }} \
             ${{ matrix.sanitizer == 'undefined' && '-DBUSTACHE_ENABLE_SANITIZER_UNDEFINED=ON' || '' }}
 
