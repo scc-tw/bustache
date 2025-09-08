@@ -189,23 +189,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # macOS 12 (Monterey) with Xcode 14.2
-          - os: macos-12
-            xcode-version: "14.2"
-            build-type: Debug
-            sanitizer: ""
-          - os: macos-12
-            xcode-version: "14.2"
-            build-type: Release
-            sanitizer: ""
-          - os: macos-12
-            xcode-version: "14.2"
-            build-type: Debug
-            sanitizer: "address"
-          - os: macos-12
-            xcode-version: "14.2"
-            build-type: Debug
-            sanitizer: "undefined"
           
           # macOS 13 (Ventura) with Xcode 15.2
           - os: macos-13

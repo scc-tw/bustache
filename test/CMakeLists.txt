@@ -45,12 +45,23 @@ function(add_catch_test name)
     )
     
     # Ensure C++ linker is used (prevents linking with C linker)
-    set_target_properties(${TEST_TARGET} PROPERTIES LINKER_LANGUAGE CXX)
+    set_target_properties(${TEST_TARGET} PROPERTIES 
+        LINKER_LANGUAGE CXX
+        # Explicitly set PIE properties to ensure compatibility
+        POSITION_INDEPENDENT_CODE ON
+    )
     
-    target_link_libraries(${TEST_TARGET}
-        ${PROJECT_NAME} Catch2::Catch2WithMain
+    target_link_libraries(${TEST_TARGET} PRIVATE
+        ${PROJECT_NAME} 
+        Catch2::Catch2WithMain
     )
     target_compile_features(${TEST_TARGET} PUBLIC cxx_std_20)
+    
+    # Ensure proper C++ standard library linking for GCC/Clang
+    # This prevents undefined reference errors for C++ runtime symbols
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        target_link_libraries(${TEST_TARGET} PRIVATE stdc++)
+    endif()
     
     # Ensure consistent MSVC runtime library for all test targets
     if(MSVC)

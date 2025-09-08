@@ -163,6 +163,14 @@ target_include_directories(bustache_headers
     INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+        # Also include src directory for header-only mode
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+)
+
+# In header-only mode, consumers need to compile the source files themselves
+target_sources(bustache_headers INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/format.cpp>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/render.cpp>
 )
 
 # Ensure header-only targets also get proper PIE/PIC configuration
